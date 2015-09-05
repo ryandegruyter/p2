@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Popular Movies</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_popular_movies">Popular Movies</string>
+    <string name="title_highest_rated">Highest Rated</string>
+    <string name="title_now_playing">Now Playing</string>
+    <string name="title_upcoming">Upcoming</string>
+
+    <string name="error_request_movies_list">Sorry, we are unable to request your movies, please check your internet connection</string>
+</resources>
