@@ -4,14 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import java.util.List;
 
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
@@ -39,7 +38,6 @@ public class MovieListFragment extends android.support.v4.app.Fragment implement
         return movieListFragment;
     }
 
-
     public MovieListFragment() {
         // Required empty public constructor
     }
@@ -51,7 +49,9 @@ public class MovieListFragment extends android.support.v4.app.Fragment implement
         mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
 
         initRecyclerView(getActivity());
-        requestMovieList();
+
+//        requestMovieList();
+        PopMovSyncAdapter.syncImmediately(getActivity());
 
         return view;
     }

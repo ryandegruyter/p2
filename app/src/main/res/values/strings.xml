@@ -13,4 +13,8 @@
     <string name="title_upcoming">Upcoming</string>
 
     <string name="error_request_movies_list">Sorry, we are unable to request your movies, please check your internet connection</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">popularmovies.ryan.be</string>
+    <string name="content_authority">be.ryan.popularmovies</string>
 </resources>
