@@ -10,6 +10,7 @@ import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
+import be.ryan.popularmovies.util.Preferences;
 import de.greenrobot.event.EventBus;
 
 public class MainActivity extends ActionBarActivity  {
@@ -24,7 +25,10 @@ public class MainActivity extends ActionBarActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        PopMovSyncAdapter.syncImmediately(this, new Bundle());
+        if (savedInstanceState == null) {
+            PopMovSyncAdapter.syncImmediately(this, new Bundle());
+        }
+
         mContainerView = (LinearLayout) findViewById(R.id.container_main);
 
         //TODO: Make sure on orientation change fragment is saved
@@ -48,7 +52,6 @@ public class MainActivity extends ActionBarActivity  {
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
-
 
     public void onEvent(TmdbMovie movie) {
         //TODO: Go to detailview

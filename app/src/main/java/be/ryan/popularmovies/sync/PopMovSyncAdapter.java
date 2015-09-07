@@ -15,10 +15,13 @@ import android.util.Log;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
+import be.ryan.popularmovies.event.MovieListEvent;
+import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.tmdb.TmdbService;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.fragment.MovieListFragment;
 import be.ryan.popularmovies.util.Preferences;
+import de.greenrobot.event.EventBus;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -156,7 +159,7 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
 
     @Override
     public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
-        Log.d(TAG, "retrofit success: " + tmdbMoviesPage.toString());
+        EventBus.getDefault().post(tmdbMoviesPage);
     }
 
     @Override

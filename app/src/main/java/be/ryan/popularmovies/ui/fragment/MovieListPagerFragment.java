@@ -33,10 +33,9 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         final View view = inflater.inflate(R.layout.fragment_movie_list_pager, container, false);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        initPager(mViewPager);
+        initPager(mViewPager, savedInstanceState);
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         initTabLayout(mSlidingTabLayout, mViewPager);
@@ -49,7 +48,7 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
         tabLayout.setViewPager(viewPager);
     }
 
-    private void initPager(ViewPager pager) {
+    private void initPager(ViewPager pager, Bundle savedInstanceState) {
         final android.support.v4.app.Fragment[] fragments = {
                 MovieListFragment.newInstance(getString(R.string.title_now_playing)),
                 MovieListFragment.newInstance(getString(R.string.title_popular_movies)),
@@ -61,10 +60,13 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
 
         pager.addOnPageChangeListener(this);
 
+        // TODO: 7/09/15
         //the viewpager doesnt call onpageselected when created so we have to force it.
         //on page selected will set the sort type preference wich the syncadapter can read from
-        ViewPager.OnPageChangeListener onPageChangeListener = this;
-        onPageChangeListener.onPageSelected(0);
+        if (savedInstanceState == null) {
+            ViewPager.OnPageChangeListener onPageChangeListener = this;
+            onPageChangeListener.onPageSelected(0);
+        }
     }
 
 
@@ -80,7 +82,13 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
     @Override
     public void onPageSelected(int position) {
         //set movie list sort type in prefs
-        Preferences.setMovieListSortType((String) mViewPager.getAdapter().getPageTitle(position), getActivity());
+        String prefMoveListSortType = Preferences.getMovieListSortType(getActivity());
+        String currentPageTitle = (String) mViewPager.getAdapter().getPageTitle(position);
+//        we need to check if were coming from orientation change or clicking the same tab, so we dont make an unnecassary request
+        if (!prefMoveListSortType.equals(currentPageTitle)) {
+            Preferences.setMovieListSortType((String) mViewPager.getAdapter().getPageTitle(position), getActivity());
+        }
+
         Log.d(TAG, "onPageSelected " + Preferences.getMovieListSortType(getActivity()));
     }
 

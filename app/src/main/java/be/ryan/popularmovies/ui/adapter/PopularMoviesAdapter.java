@@ -39,4 +39,8 @@ public class PopularMoviesAdapter extends android.support.v7.widget.RecyclerView
     public int getItemCount() {
         return mTmdbMoviesList.size();
     }
+
+    public List<TmdbMovie> getMoviesList() {
+        return mTmdbMoviesList;
+    }
 }
