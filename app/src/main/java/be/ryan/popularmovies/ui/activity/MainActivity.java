@@ -3,6 +3,7 @@ package be.ryan.popularmovies.ui.activity;
 import android.content.ContentResolver;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
 import be.ryan.popularmovies.R;
@@ -13,7 +14,7 @@ import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import be.ryan.popularmovies.util.Preferences;
 import de.greenrobot.event.EventBus;
 
-public class MainActivity extends ActionBarActivity  {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
     public String TAG_MOVIE_DETAIL_FRAGMENT = "detail_movie";
@@ -24,7 +25,7 @@ public class MainActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        // TODO: 7/09/15 fix repopulate list when on back from detail view
         if (savedInstanceState == null) {
             PopMovSyncAdapter.syncImmediately(this, new Bundle());
         }
@@ -54,7 +55,7 @@ public class MainActivity extends ActionBarActivity  {
     }
 
     public void onEvent(TmdbMovie movie) {
-        //TODO: Go to detailview
+        getSupportFragmentManager().saveFragmentInstanceState(getSupportFragmentManager().findFragmentByTag(TAG_MOVIE_LIST_PAGER_FRAGMENT));
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(mContainerView.getId(), DetailMovieFragment.newInstance(movie), TAG_MOVIE_DETAIL_FRAGMENT)

@@ -35,7 +35,7 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_movie_list_pager, container, false);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
-        initPager(mViewPager, savedInstanceState);
+        initPager(mViewPager);
 
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         initTabLayout(mSlidingTabLayout, mViewPager);
@@ -48,7 +48,7 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
         tabLayout.setViewPager(viewPager);
     }
 
-    private void initPager(ViewPager pager, Bundle savedInstanceState) {
+    private void initPager(ViewPager pager) {
         final android.support.v4.app.Fragment[] fragments = {
                 MovieListFragment.newInstance(getString(R.string.title_now_playing)),
                 MovieListFragment.newInstance(getString(R.string.title_popular_movies)),
@@ -57,16 +57,8 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
 
         final TmdbPagerAdapter pagerAdapter = new TmdbPagerAdapter(getChildFragmentManager(), fragments);
         pager.setAdapter(pagerAdapter);
-
+        pager.setOffscreenPageLimit(0);
         pager.addOnPageChangeListener(this);
-
-        // TODO: 7/09/15
-        //the viewpager doesnt call onpageselected when created so we have to force it.
-        //on page selected will set the sort type preference wich the syncadapter can read from
-        if (savedInstanceState == null) {
-            ViewPager.OnPageChangeListener onPageChangeListener = this;
-            onPageChangeListener.onPageSelected(0);
-        }
     }
 
 
