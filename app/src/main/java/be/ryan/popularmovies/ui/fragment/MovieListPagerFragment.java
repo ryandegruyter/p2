@@ -2,8 +2,11 @@ package be.ryan.popularmovies.ui.fragment;
 
 
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +14,14 @@ import android.view.ViewGroup;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.ui.adapter.TmdbPagerAdapter;
 import be.ryan.popularmovies.ui.view.SlidingTabLayout;
+import be.ryan.popularmovies.util.Preferences;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MovieListPagerFragment extends android.support.v4.app.Fragment {
+public class MovieListPagerFragment extends android.support.v4.app.Fragment implements ViewPager.OnPageChangeListener {
+
+    private static final String TAG = "MovieListPagerFragment";
 
     ViewPager mViewPager;
     SlidingTabLayout mSlidingTabLayout;
@@ -52,7 +58,34 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment {
 
         final TmdbPagerAdapter pagerAdapter = new TmdbPagerAdapter(getChildFragmentManager(), fragments);
         pager.setAdapter(pagerAdapter);
+
+        pager.addOnPageChangeListener(this);
+
+        //the viewpager doesnt call onpageselected when created so we have to force it.
+        //on page selected will set the sort type preference wich the syncadapter can read from
+        ViewPager.OnPageChangeListener onPageChangeListener = this;
+        onPageChangeListener.onPageSelected(0);
     }
 
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    /*
+    * When a tab is selected the syncadapter should request a list of movies based on the tab title
+    *
+    * */
+    @Override
+    public void onPageSelected(int position) {
+        //set movie list sort type in prefs
+        Preferences.setMovieListSortType((String) mViewPager.getAdapter().getPageTitle(position), getActivity());
+        Log.d(TAG, "onPageSelected " + Preferences.getMovieListSortType(getActivity()));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 }

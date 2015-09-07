@@ -1,5 +1,6 @@
 package be.ryan.popularmovies.ui.activity;
 
+import android.content.ContentResolver;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.widget.LinearLayout;
@@ -22,7 +23,8 @@ public class MainActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PopMovSyncAdapter.configurePeriodicSync(this, PopMovSyncAdapter.SYNC_INTERVAL, PopMovSyncAdapter.SYNC_FLEXTIME, new Bundle());
+
+        PopMovSyncAdapter.syncImmediately(this, new Bundle());
         mContainerView = (LinearLayout) findViewById(R.id.container_main);
 
         //TODO: Make sure on orientation change fragment is saved

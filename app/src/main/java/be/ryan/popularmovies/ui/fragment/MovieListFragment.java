@@ -2,9 +2,11 @@ package be.ryan.popularmovies.ui.fragment;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,15 +20,17 @@ import be.ryan.popularmovies.domain.TmdbMoviesPage;
 import be.ryan.popularmovies.tmdb.TmdbService;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.adapter.PopularMoviesAdapter;
+import be.ryan.popularmovies.util.Preferences;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MovieListFragment extends android.support.v4.app.Fragment {
+public class MovieListFragment extends android.support.v4.app.Fragment{
 
     public static final String PARAM_KEY_TITLE = "title";
+    private static final String TAG = "MovieListFragment";
     private RecyclerView mMovieListRecyclerView = null;
     private RecyclerView.Adapter mPopularMoviesAdapter = null;
     private RecyclerView.LayoutManager mPopularMoviesLayoutManager = null;
@@ -41,14 +45,16 @@ public class MovieListFragment extends android.support.v4.app.Fragment {
 
     public MovieListFragment() {
         // Required empty public constructor
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView : " + getArguments().getString(PARAM_KEY_TITLE));
         View view = inflater.inflate(R.layout.fragment_movie_list, container, false);
-        mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
 
+        mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
         initRecyclerView(getActivity());
         return view;
     }

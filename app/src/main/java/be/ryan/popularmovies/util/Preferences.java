@@ -9,13 +9,18 @@ import android.content.SharedPreferences;
 public class Preferences {
 
     public static final String SHARED_PREFERENCES_FILE_NAME = "popmovs";
+    public static final String UNKNOWN = "unknown";
 
-    public static void setMoviesToFetch(String sortOrder, Context context) {
+    public static void setMovieListSortType(String sortOrder, Context context) {
         SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(Keys.MOVIES_TO_FETCH, sortOrder).apply();
+        editor.putString(Keys.MOVIE_LIST_SORT_TYPE, sortOrder).apply();
+    }
+
+    public static String getMovieListSortType(Context context) {
+        return context.getSharedPreferences(SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE).getString(Keys.MOVIE_LIST_SORT_TYPE, UNKNOWN);
     }
 
     public interface Keys {
-        String MOVIES_TO_FETCH = "movies_to_fetch";
+        String MOVIE_LIST_SORT_TYPE = "movies_to_fetch";
     }
 }

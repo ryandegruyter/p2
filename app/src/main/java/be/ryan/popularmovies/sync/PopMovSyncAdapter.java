@@ -6,6 +6,7 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.os.Build;
@@ -17,6 +18,7 @@ import be.ryan.popularmovies.domain.TmdbMoviesPage;
 import be.ryan.popularmovies.tmdb.TmdbService;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.fragment.MovieListFragment;
+import be.ryan.popularmovies.util.Preferences;
 import retrofit.Callback;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -26,7 +28,7 @@ import retrofit.client.Response;
 /**
  * Created by ryan on 6/09/15.
  */
-public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage> {
+public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage>, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "PopMovSyncAdapter";
 
@@ -38,24 +40,25 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
 
     public PopMovSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
+        context.getSharedPreferences(Preferences.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Log.d(TAG, "onPerformSync");
-        //TODO: implement network code
-        requestMovieList(extras);
+        requestMovieList();
     }
 
-    private void requestMovieList(Bundle bundle) {
+    private void requestMovieList() {
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(TmdbWebServiceContract.BASE_URL)
                 .setRequestInterceptor(this)
                 .build();
         final TmdbService tmdbService = restAdapter.create(TmdbService.class);
 
-        //TODO: change locattion of parameter key
-        final String title = bundle.getString(MovieListFragment.PARAM_KEY_TITLE);
+        //TODO: when title is null request discover/movies/
+        final String title = Preferences.getMovieListSortType(getContext());
+
+        Log.d(TAG, "Performing sync of movie list sort type : " + title);
         if (title != null) {
             if (title.equals(getContext().getString(R.string.title_highest_rated))) {
                 tmdbService.listTopRatedMovies(this);
@@ -153,11 +156,18 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
 
     @Override
     public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
-        Log.d(TAG, "success: " + tmdbMoviesPage.toString());
+        Log.d(TAG, "retrofit success: " + tmdbMoviesPage.toString());
     }
 
     @Override
     public void failure(RetrofitError error) {
         Log.d(TAG, error.toString());
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(Preferences.Keys.MOVIE_LIST_SORT_TYPE)) {
+            syncImmediately(getContext(), new Bundle());
+        }
     }
 }
