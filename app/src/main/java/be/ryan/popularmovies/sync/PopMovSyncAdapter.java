@@ -13,18 +13,27 @@ import android.os.Bundle;
 import android.util.Log;
 
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.domain.TmdbMoviesPage;
+import be.ryan.popularmovies.tmdb.TmdbService;
+import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
+import be.ryan.popularmovies.ui.fragment.MovieListFragment;
+import retrofit.Callback;
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
  * Created by ryan on 6/09/15.
  */
-public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
+public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage> {
 
     private static final String TAG = "PopMovSyncAdapter";
 
     // Interval at which to be.ryan.popularmovies.sync with the weather, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
-    public static final int SYNC_INTERVAL = 60 * 180;
-    public static final int SYNC_FLEXTIME = SYNC_INTERVAL/3;
+    public static final int SYNC_INTERVAL = 60;
+    public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
 
 
     public PopMovSyncAdapter(Context context, boolean autoInitialize) {
@@ -35,6 +44,29 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
         Log.d(TAG, "onPerformSync");
         //TODO: implement network code
+        requestMovieList(extras);
+    }
+
+    private void requestMovieList(Bundle bundle) {
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(TmdbWebServiceContract.BASE_URL)
+                .setRequestInterceptor(this)
+                .build();
+        final TmdbService tmdbService = restAdapter.create(TmdbService.class);
+
+        //TODO: change locattion of parameter key
+        final String title = bundle.getString(MovieListFragment.PARAM_KEY_TITLE);
+        if (title != null) {
+            if (title.equals(getContext().getString(R.string.title_highest_rated))) {
+                tmdbService.listTopRatedMovies(this);
+            } else if (title.equals(getContext().getString(R.string.title_popular_movies))) {
+                tmdbService.listPopularMovies(this);
+            } else if (title.equals(getContext().getString(R.string.title_upcoming))) {
+                tmdbService.listUpcoming(this);
+            } else if (title.equals(getContext().getString(R.string.title_now_playing))) {
+                tmdbService.listNowPlayingMovies(this);
+            }
+        }
     }
 
     /**
@@ -55,7 +87,7 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
                 context.getString(R.string.app_name), context.getString(R.string.sync_account_type));
 
         // If the password doesn't exist, the account doesn't exist
-        if ( null == accountManager.getPassword(newAccount) ) {
+        if (null == accountManager.getPassword(newAccount)) {
 
         /*
          * Add the account and account type, no password or user data
@@ -78,27 +110,17 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static void onAccountCreated(Account newAccount, Context context) {
         /*
-         * Since we've created an account
-         */
-        PopMovSyncAdapter.configurePeriodicSync(context, SYNC_INTERVAL, SYNC_FLEXTIME);
-
-        /*
          * Without calling setSyncAutomatically, our periodic be.ryan.popularmovies.sync will not be enabled.
          */
         ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
-
-        /*
-         * Finally, let's do a be.ryan.popularmovies.sync to get things started
-         */
-        syncImmediately(context);
     }
 
     /**
      * Helper method to have the be.ryan.popularmovies.sync adapter be.ryan.popularmovies.sync immediately
+     *
      * @param context The context used to access the account service
      */
-    public static void syncImmediately(Context context) {
-        Bundle bundle = new Bundle();
+    public static void syncImmediately(Context context, Bundle bundle) {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(getSyncAccount(context),
@@ -108,7 +130,7 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
     /**
      * Helper method to schedule the be.ryan.popularmovies.sync adapter periodic execution
      */
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime) {
+    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime, Bundle bundle) {
         Account account = getSyncAccount(context);
         String authority = context.getString(R.string.content_authority);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -120,8 +142,22 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
             ContentResolver.requestSync(request);
         } else {
             ContentResolver.addPeriodicSync(account,
-                    authority, new Bundle(), syncInterval);
+                    authority, bundle, syncInterval);
         }
     }
 
+    @Override
+    public void intercept(RequestFacade request) {
+        request.addQueryParam(TmdbWebServiceContract.QUERY_PARAM_API_KEY, TmdbWebServiceContract.API_KEY);
+    }
+
+    @Override
+    public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
+        Log.d(TAG, "success: " + tmdbMoviesPage.toString());
+    }
+
+    @Override
+    public void failure(RetrofitError error) {
+        Log.d(TAG, error.toString());
+    }
 }

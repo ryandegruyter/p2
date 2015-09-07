@@ -6,6 +6,7 @@ import android.widget.LinearLayout;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import de.greenrobot.event.EventBus;
@@ -21,7 +22,7 @@ public class MainActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        PopMovSyncAdapter.configurePeriodicSync(this, PopMovSyncAdapter.SYNC_INTERVAL, PopMovSyncAdapter.SYNC_FLEXTIME, new Bundle());
         mContainerView = (LinearLayout) findViewById(R.id.container_main);
 
         //TODO: Make sure on orientation change fragment is saved

@@ -1,5 +1,6 @@
 package be.ryan.popularmovies.ui.fragment;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,7 +24,7 @@ import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class MovieListFragment extends android.support.v4.app.Fragment implements RequestInterceptor, Callback<TmdbMoviesPage> {
+public class MovieListFragment extends android.support.v4.app.Fragment {
 
     public static final String PARAM_KEY_TITLE = "title";
     private RecyclerView mMovieListRecyclerView = null;
@@ -49,31 +50,7 @@ public class MovieListFragment extends android.support.v4.app.Fragment implement
         mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
 
         initRecyclerView(getActivity());
-
-//        requestMovieList();
-        PopMovSyncAdapter.syncImmediately(getActivity());
-
         return view;
-    }
-
-    private void requestMovieList() {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(TmdbWebServiceContract.BASE_URL)
-                .setRequestInterceptor(this)
-                .build();
-        final TmdbService tmdbService = restAdapter.create(TmdbService.class);
-
-        final String title = getArguments().getString(PARAM_KEY_TITLE);
-
-        if (title.equals(getString(R.string.title_highest_rated))) {
-            tmdbService.listTopRatedMovies(this);
-        } else if (title.equals(getString(R.string.title_popular_movies))) {
-            tmdbService.listPopularMovies(this);
-        } else if (title.equals(getString(R.string.title_upcoming))) {
-            tmdbService.listUpcoming(this);
-        } else if (title.equals(getString(R.string.title_now_playing))) {
-            tmdbService.listNowPlayingMovies(this);
-        }
     }
 
     private void setRecyclerViewAdapter(List<TmdbMovie> tmdbMovieList) {
@@ -86,21 +63,5 @@ public class MovieListFragment extends android.support.v4.app.Fragment implement
         mMovieListRecyclerView.setHasFixedSize(true);
         mPopularMoviesLayoutManager = new GridLayoutManager(context,3);
         mMovieListRecyclerView.setLayoutManager(mPopularMoviesLayoutManager);
-    }
-
-    @Override
-    public void intercept(RequestFacade request) {
-        request.addQueryParam(TmdbWebServiceContract.QUERY_PARAM_API_KEY, TmdbWebServiceContract.API_KEY);
-    }
-
-    @Override
-    public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
-        setRecyclerViewAdapter(tmdbMoviesPage.getTmdbMovieList());
-    }
-
-    @Override
-    public void failure(RetrofitError error) {
-        //TODO respond properly to errors
-
     }
 }
