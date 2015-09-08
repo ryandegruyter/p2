@@ -25,10 +25,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // TODO: 7/09/15 fix repopulate list when on back from detail view
-        if (savedInstanceState == null) {
-            PopMovSyncAdapter.syncImmediately(this, new Bundle());
-        }
 
         mContainerView = (LinearLayout) findViewById(R.id.container_main);
 
@@ -55,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onEvent(TmdbMovie movie) {
-        getSupportFragmentManager().saveFragmentInstanceState(getSupportFragmentManager().findFragmentByTag(TAG_MOVIE_LIST_PAGER_FRAGMENT));
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(mContainerView.getId(), DetailMovieFragment.newInstance(movie), TAG_MOVIE_DETAIL_FRAGMENT)

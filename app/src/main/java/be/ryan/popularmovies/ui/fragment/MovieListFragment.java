@@ -17,6 +17,7 @@ import java.util.List;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.adapter.PopularMoviesAdapter;
 import be.ryan.popularmovies.util.Preferences;
 import de.greenrobot.event.EventBus;
@@ -50,7 +51,7 @@ public class MovieListFragment extends android.support.v4.app.Fragment {
         Log.d(TAG, "onCreateView : " + getArguments().getString(PARAM_KEY_TITLE));
         View view = inflater.inflate(R.layout.fragment_movie_list, container, false);
         mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
-        initRecyclerView(getActivity(),savedInstanceState);
+        initRecyclerView(getActivity(), savedInstanceState);
         return view;
     }
 
@@ -68,6 +69,8 @@ public class MovieListFragment extends android.support.v4.app.Fragment {
             Parcelable list = savedInstanceState.getParcelable(MOVIE_LIST);
             List<TmdbMovie> movieList = Parcels.unwrap(list);
             setRecyclerViewAdapter(movieList);
+        }else{
+            PopMovSyncAdapter.syncImmediately(getActivity(),new Bundle());
         }
     }
 
