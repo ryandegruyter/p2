@@ -2,9 +2,7 @@ package be.ryan.popularmovies.ui.fragment;
 
 
 import android.app.Fragment;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -50,10 +48,12 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
 
     private void initPager(ViewPager pager) {
         final android.support.v4.app.Fragment[] fragments = {
+                FavoritesFragment.newInstance(getString(R.string.title_favorites)),
                 MovieListFragment.newInstance(getString(R.string.title_now_playing)),
                 MovieListFragment.newInstance(getString(R.string.title_popular_movies)),
                 MovieListFragment.newInstance(getString(R.string.title_highest_rated)),
-                MovieListFragment.newInstance(getString(R.string.title_upcoming))};
+                MovieListFragment.newInstance(getString(R.string.title_upcoming))
+        };
 
         final TmdbPagerAdapter pagerAdapter = new TmdbPagerAdapter(getChildFragmentManager(), fragments);
         pager.setAdapter(pagerAdapter);
@@ -77,11 +77,9 @@ public class MovieListPagerFragment extends android.support.v4.app.Fragment impl
         String prefMoveListSortType = Preferences.getMovieListSortType(getActivity());
         String currentPageTitle = (String) mViewPager.getAdapter().getPageTitle(position);
 //        we need to check if were coming from orientation change or clicking the same tab, so we dont make an unnecassary request
-        if (!prefMoveListSortType.equals(currentPageTitle)) {
+        if (!prefMoveListSortType.equals(currentPageTitle) && currentPageTitle != "Favorites") {
             Preferences.setMovieListSortType((String) mViewPager.getAdapter().getPageTitle(position), getActivity());
         }
-
-        Log.d(TAG, "onPageSelected " + Preferences.getMovieListSortType(getActivity()));
     }
 
     @Override

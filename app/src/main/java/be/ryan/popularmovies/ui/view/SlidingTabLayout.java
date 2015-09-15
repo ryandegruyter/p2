@@ -146,7 +146,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     /**
      * Sets the associated view pager. Note that the assumption here is that the pager content
-     * (number of tabs and tab titles) does not change after this call has been made.
+     * (number of tabs and tab ws) does not change after this call has been made.
      */
     public void setViewPager(ViewPager viewPager) {
         mTabStrip.removeAllViews();
@@ -165,6 +165,7 @@ public class SlidingTabLayout extends HorizontalScrollView {
     protected TextView createDefaultTabView(Context context) {
         TextView textView = new TextView(context);
         textView.setGravity(Gravity.CENTER);
+        textView.setSingleLine(true);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, TAB_VIEW_TEXT_SIZE_SP);
         textView.setTypeface(Typeface.DEFAULT_BOLD);
         textView.setLayoutParams(new LinearLayout.LayoutParams(

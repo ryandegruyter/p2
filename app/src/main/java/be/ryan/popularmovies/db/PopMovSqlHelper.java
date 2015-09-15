@@ -12,7 +12,7 @@ import android.graphics.Movie;
 public class PopMovSqlHelper extends SQLiteOpenHelper{
 
     public static final String DB_NAME = "popmov.db";
-    static final int DB_VERSION = 1;
+    static final int DB_VERSION = 2;
 
     public PopMovSqlHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -30,7 +30,7 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
                 MovieColumns.BACKDROP_PATH + " TEXT NOT NULL, " +
                 MovieColumns.MOVIE_ID + " INTEGER UNIQUE NOT NULL, " +
                 MovieColumns.ORIGINAL_TITLE  + " TEXT NOT NULL, " +
-                MovieColumns.OVERVIEW + " TEXT NOT NULL, " +
+                MovieColumns.OVERVIEW + " TEXT, " +
                 MovieColumns.POSTER_PATH + " TEXT NOT NULL, " +
                 MovieColumns.RELEASE_DATE + " TEXT NOT NULL, " +
                 MovieColumns.VOTE_AVERAGE + " REAL NOT NULL, " +

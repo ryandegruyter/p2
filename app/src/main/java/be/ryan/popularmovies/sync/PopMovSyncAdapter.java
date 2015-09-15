@@ -31,7 +31,7 @@ import retrofit.client.Response;
 /**
  * Created by ryan on 6/09/15.
  */
-public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage>, SharedPreferences.OnSharedPreferenceChangeListener {
+public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage>{
 
     private static final String TAG = "PopMovSyncAdapter";
 
@@ -43,7 +43,6 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
 
     public PopMovSyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        context.getSharedPreferences(Preferences.SHARED_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -108,17 +107,8 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
              * then call ContentResolver.setIsSyncable(account, AUTHORITY, 1)
              * here.
              */
-
-            onAccountCreated(newAccount, context);
         }
         return newAccount;
-    }
-
-    private static void onAccountCreated(Account newAccount, Context context) {
-        /*
-         * Without calling setSyncAutomatically, our periodic be.ryan.popularmovies.sync will not be enabled.
-         */
-        ContentResolver.setSyncAutomatically(newAccount, context.getString(R.string.content_authority), true);
     }
 
     /**
@@ -131,25 +121,6 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
-    }
-
-    /**
-     * Helper method to schedule the be.ryan.popularmovies.sync adapter periodic execution
-     */
-    public static void configurePeriodicSync(Context context, int syncInterval, int flexTime, Bundle bundle) {
-        Account account = getSyncAccount(context);
-        String authority = context.getString(R.string.content_authority);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            // we can enable inexact timers in our periodic be.ryan.popularmovies.sync
-            SyncRequest request = new SyncRequest.Builder().
-                    syncPeriodic(syncInterval, flexTime).
-                    setSyncAdapter(account, authority).
-                    setExtras(new Bundle()).build();
-            ContentResolver.requestSync(request);
-        } else {
-            ContentResolver.addPeriodicSync(account,
-                    authority, bundle, syncInterval);
-        }
     }
 
     @Override
@@ -165,12 +136,5 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
     @Override
     public void failure(RetrofitError error) {
         Log.d(TAG, error.toString());
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(Preferences.Keys.MOVIE_LIST_SORT_TYPE)) {
-            syncImmediately(getContext(), new Bundle());
-        }
     }
 }

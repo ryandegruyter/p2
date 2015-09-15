@@ -1,9 +1,14 @@
 package be.ryan.popularmovies.ui.fragment;
 
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -15,13 +20,17 @@ import org.parceler.Parcels;
 import java.text.ParseException;
 
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
+import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.util.Utility;
+import be.ryan.popularmovies.util.DbUtil;
 
 public class DetailMovieFragment extends android.support.v4.app.Fragment {
 
     private static final String ARG_MOVIE = "movie";
+    private static final String TAG = "DetailMovieFragment";
 
     private TmdbMovie mMovie;
     private ImageView mBackdropView;
@@ -30,6 +39,7 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     private RatingBar mVoteAverageView;
     private TextView mSynopsisView;
     private RatingBar mRatingBar;
+    private Button mFavButton;
 
     public static DetailMovieFragment newInstance(TmdbMovie tmdbMovie) {
         DetailMovieFragment fragment = new DetailMovieFragment();
@@ -77,6 +87,27 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
 
         mRatingBar = (RatingBar) view.findViewById(R.id.vote_average);
         mRatingBar.setRating((float) mMovie.getVoteAverage()/2);
+
+        mFavButton = (Button) view.findViewById(R.id.btnFav);
+        mFavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Parcelable parcelable = getArguments().getParcelable(ARG_MOVIE);
+                TmdbMovie movie = Parcels.unwrap(parcelable);
+                DbUtil.getTmdbMovieContentValues(movie);
+
+                Cursor query = getActivity().getContentResolver().query(PopularMoviesContract.MovieEntry.CONTENT_URI,
+                        new String[]{MovieColumns.MOVIE_ID},
+                        "id = ?",
+                        new String[]{String.valueOf(movie.getId())},
+                        null, null);
+                if (query.getCount() > 0) {
+                    getActivity().getContentResolver().delete(PopularMoviesContract.MovieEntry.CONTENT_URI, "id = ?", new String[]{String.valueOf(movie.getId())});
+                }else {
+                    getActivity().getContentResolver().insert(PopularMoviesContract.MovieEntry.CONTENT_URI, DbUtil.getTmdbMovieContentValues(movie));
+                }
+            }
+        });
         return view;
     }
 

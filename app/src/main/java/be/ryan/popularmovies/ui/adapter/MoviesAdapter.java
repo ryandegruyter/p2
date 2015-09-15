@@ -13,12 +13,12 @@ import be.ryan.popularmovies.domain.TmdbMovie;
 /**
  * Created by Ryan on 29/08/2015.
  */
-public class PopularMoviesAdapter extends android.support.v7.widget.RecyclerView.Adapter<MovieHolder> {
+public class MoviesAdapter extends android.support.v7.widget.RecyclerView.Adapter<MovieHolder> {
 
     private final Context mContext;
     private final List<TmdbMovie> mTmdbMoviesList;
 
-    public PopularMoviesAdapter(Context context, List<TmdbMovie> tmdbMovieList) {
+    public MoviesAdapter(Context context, List<TmdbMovie> tmdbMovieList) {
         mContext = context;
         mTmdbMoviesList = tmdbMovieList;
     }

@@ -3,8 +3,10 @@ package be.ryan.popularmovies.ui.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,19 +20,19 @@ import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
 import be.ryan.popularmovies.sync.PopMovSyncAdapter;
-import be.ryan.popularmovies.ui.adapter.PopularMoviesAdapter;
+import be.ryan.popularmovies.ui.adapter.MoviesAdapter;
 import be.ryan.popularmovies.util.Preferences;
 import de.greenrobot.event.EventBus;
 
-public class MovieListFragment extends android.support.v4.app.Fragment {
+public class MovieListFragment extends Fragment {
 
     public static final String PARAM_KEY_TITLE = "title";
     private static final String TAG = "MovieListFragment";
     private static final String MOVIE_LIST = "movie_list";
 
-    private RecyclerView mMovieListRecyclerView = null;
-    private PopularMoviesAdapter mPopularMoviesAdapter = null;
-    private RecyclerView.LayoutManager mPopularMoviesLayoutManager = null;
+    RecyclerView mMovieListRecyclerView = null;
+    MoviesAdapter mMoviesAdapter = null;
+    RecyclerView.LayoutManager mPopularMoviesLayoutManager = null;
 
     public static MovieListFragment newInstance(String title) {
         final MovieListFragment movieListFragment = new MovieListFragment();
@@ -50,28 +52,31 @@ public class MovieListFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView : " + getArguments().getString(PARAM_KEY_TITLE));
         View view = inflater.inflate(R.layout.fragment_movie_list, container, false);
-        mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
-        initRecyclerView(getActivity(), savedInstanceState);
+        initRecyclerView(getActivity(),view);
+        populateRecyclerView(savedInstanceState);
         return view;
     }
 
-    private void setRecyclerViewAdapter(List<TmdbMovie> tmdbMovieList) {
-        //TODO: Set Adapter
-        mPopularMoviesAdapter = new PopularMoviesAdapter(getActivity(), tmdbMovieList);
-        mMovieListRecyclerView.setAdapter(mPopularMoviesAdapter);
-    }
-
-    private void initRecyclerView(Context context, Bundle savedInstanceState) {
-        mMovieListRecyclerView.setHasFixedSize(true);
-        mPopularMoviesLayoutManager = new GridLayoutManager(context,3);
-        mMovieListRecyclerView.setLayoutManager(mPopularMoviesLayoutManager);
+    void populateRecyclerView(Bundle savedInstanceState) {
         if (savedInstanceState != null && savedInstanceState.containsKey(MOVIE_LIST)) {
             Parcelable list = savedInstanceState.getParcelable(MOVIE_LIST);
             List<TmdbMovie> movieList = Parcels.unwrap(list);
             setRecyclerViewAdapter(movieList);
         }else{
-            PopMovSyncAdapter.syncImmediately(getActivity(),new Bundle());
+            PopMovSyncAdapter.syncImmediately(getActivity(), new Bundle());
         }
+    }
+
+    void setRecyclerViewAdapter(List<TmdbMovie> tmdbMovieList) {
+        mMoviesAdapter = new MoviesAdapter(getActivity(), tmdbMovieList);
+        mMovieListRecyclerView.setAdapter(mMoviesAdapter);
+    }
+
+    void initRecyclerView(Context context, View view) {
+        mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
+        mMovieListRecyclerView.setHasFixedSize(true);
+        mPopularMoviesLayoutManager = new GridLayoutManager(getActivity(),2);
+        mMovieListRecyclerView.setLayoutManager(mPopularMoviesLayoutManager);
     }
 
     public void onEvent(TmdbMoviesPage moviesPage) {
@@ -84,12 +89,11 @@ public class MovieListFragment extends android.support.v4.app.Fragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mPopularMoviesAdapter != null) {
-            Parcelable movieList = Parcels.wrap(mPopularMoviesAdapter.getMoviesList());
+        if (mMoviesAdapter != null) {
+            Parcelable movieList = Parcels.wrap(mMoviesAdapter.getMoviesList());
             outState.putParcelable(MOVIE_LIST, movieList);
         }
     }
-
 
     @Override
     public void onStart() {

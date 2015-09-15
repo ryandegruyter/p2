@@ -17,4 +17,5 @@
     <!-- SyncAdapter related -->
     <string name="sync_account_type">popularmovies.ryan.be</string>
     <string name="content_authority">be.ryan.popularmovies</string>
+    <string name="title_favorites">Favorites</string>
 </resources>
