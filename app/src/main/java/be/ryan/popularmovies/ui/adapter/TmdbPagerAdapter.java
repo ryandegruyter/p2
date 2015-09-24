@@ -4,7 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import be.ryan.popularmovies.ui.fragment.MovieListFragment;
+import be.ryan.popularmovies.ui.fragment.ListMovieFragment;
 
 /**
  * Created by Ryan on 01/09/2015.
@@ -30,6 +30,6 @@ public class TmdbPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return mFragments[position].getArguments().getString(MovieListFragment.PARAM_KEY_TITLE);
+        return mFragments[position].getArguments().getString(ListMovieFragment.KEY_TITLE);
     }
 }

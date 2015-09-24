@@ -6,9 +6,16 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Bundle;
 
+import be.ryan.popularmovies.db.ListColumns;
+import be.ryan.popularmovies.db.ListType;
+import be.ryan.popularmovies.db.MovieColumns;
+import be.ryan.popularmovies.db.MoviePerListColumns;
 import be.ryan.popularmovies.db.PopMovSqlHelper;
 import be.ryan.popularmovies.db.Tables;
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
+import be.ryan.popularmovies.util.ContentUtils;
 import be.ryan.popularmovies.util.ErrorMessages;
 
 /**
@@ -18,6 +25,13 @@ public class PopularMoviesProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final int MOVIE = 100;
+    private static final int MOVIE_LIST_POPULAR = 101;
+    private static final int MOVIE_LIST_TOP_RATED = 102;
+    private static final int MOVIE_LIST_UPCOMING = 103;
+    private static final int MOVIE_LIST_LATEST = 104;
+    private static final int MOVIE_LIST_POPULAR_REMOTE = 105;
+    private static final String TAG = "PopularMoviesProvider";
+    private static final int FAVORITES = 106;
 
     private PopMovSqlHelper dbHelper;
 
@@ -26,6 +40,12 @@ public class PopularMoviesProvider extends ContentProvider {
         final String authority = PopularMoviesContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE, MOVIE);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_POPULAR, MOVIE_LIST_POPULAR);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_LATEST, MOVIE_LIST_LATEST);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_UPCOMING, MOVIE_LIST_UPCOMING);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_TOP, MOVIE_LIST_TOP_RATED);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_FAVORITE, FAVORITES);
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_POPULAR + "/" + PopularMoviesContract.PATH_FLAG_REMOTE, MOVIE_LIST_POPULAR_REMOTE);
 
         return matcher;
     }
@@ -49,6 +69,45 @@ public class PopularMoviesProvider extends ContentProvider {
                         selectionArgs, null, null, sortOrder
                 );
                 break;
+            case MOVIE_LIST_POPULAR_REMOTE:
+                Bundle syncInfo = new Bundle();
+                syncInfo.putInt(PopMovSyncAdapter.SYNC_TYPE, PopMovSyncAdapter.SYNC_ORDER_TYPE_POPULAR);
+                PopMovSyncAdapter.syncImmediately(getContext(), syncInfo);
+                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.POPULAR}, null, null, sortOrder
+                );
+                break;
+            case MOVIE_LIST_POPULAR:
+                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.POPULAR}, null, null, sortOrder
+                );
+                break;
+            case MOVIE_LIST_UPCOMING:
+                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.UPCOMING}, null, null, sortOrder
+                );
+                break;
+            case MOVIE_LIST_TOP_RATED:
+                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.TOP}, null, null, sortOrder
+                );
+                break;
+            case MOVIE_LIST_LATEST:
+                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.LATEST}, null, null, sortOrder
+                );
+                break;
+            case FAVORITES:
+                cursor = PopMovSqlHelper.getFavoritesQueryBuilder().query(
+                        dbHelper.getReadableDatabase(),
+                        projection, null, null, null, null, null
+                );
+                break;
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
         }
@@ -60,6 +119,18 @@ public class PopularMoviesProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case MOVIE:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_LIST_POPULAR:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_LIST_POPULAR_REMOTE:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_LIST_UPCOMING:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_LIST_LATEST:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case MOVIE_LIST_TOP_RATED:
+                return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case FAVORITES:
                 return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
@@ -78,6 +149,37 @@ public class PopularMoviesProvider extends ContentProvider {
                     returnUri = PopularMoviesContract.MovieEntry.buildMovieUri(_id);
                 else
                     throw new android.database.SQLException(ErrorMessages.getFailedToInsertRowMsg(uri));
+                break;
+            }
+            case MOVIE_LIST_POPULAR: case MOVIE_LIST_LATEST:case MOVIE_LIST_TOP_RATED: case MOVIE_LIST_UPCOMING: {
+                String orderType = uri.getLastPathSegment();
+                int rank = values.getAsInteger(MoviePerListColumns.RANK);
+                values.remove(MoviePerListColumns.RANK);
+                Cursor cursor = dbHelper.getReadableDatabase().rawQuery("select " + ListColumns._ID + " from " + Tables.List + " where " + ListColumns.TYPE + " = ?", new String[]{orderType});
+                long _id = -1;
+                if (cursor.moveToFirst()) {
+                    int orderTypeId = cursor.getInt(cursor.getColumnIndex(ListColumns._ID));
+                    db.beginTransaction();
+                    try {
+                        _id = db.replace(
+                                Tables.Movie,
+                                null,
+                                values
+                        );
+
+                        db.replace(
+                                Tables.MoviePerList,
+                                null,
+                                ContentUtils.prepareMoviePerListValues(orderTypeId, values.getAsInteger(MovieColumns._ID), rank)
+                        );
+
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
+                returnUri = PopularMoviesContract.MovieEntry.buildMovieUri(_id);
                 break;
             }
             default:
@@ -136,10 +238,10 @@ public class PopularMoviesProvider extends ContentProvider {
     public int bulkInsert(Uri uri, ContentValues[] values) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
+        int returnCount = 0;
         switch (sUriMatcher.match(uri)) {
             case MOVIE:
                 db.beginTransaction();
-                int returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(Tables.Movie, null, value);
@@ -152,6 +254,33 @@ public class PopularMoviesProvider extends ContentProvider {
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case MOVIE_LIST_POPULAR: case MOVIE_LIST_LATEST:case MOVIE_LIST_TOP_RATED: case MOVIE_LIST_UPCOMING:
+                int rank = 0;
+                String orderType = uri.getLastPathSegment();
+                Cursor cursor = dbHelper.getReadableDatabase().rawQuery("select " + ListColumns._ID + " from " + Tables.List + " where " + ListColumns.TYPE + " = ?", new String[]{orderType});
+                if (cursor.moveToFirst()) {
+                    int orderTypeId = cursor.getInt(cursor.getColumnIndex(ListColumns._ID));
+                    db.beginTransaction();
+                    try {
+                        for (ContentValues value : values) {
+                            long _id = db.replace(Tables.Movie, null, value);
+                            if (_id != -1) {
+                                returnCount++;
+                            }
+                            int movieId = (int) value.get(MovieColumns._ID);
+                            db.replace(
+                                    Tables.MoviePerList,
+                                    null,
+                                    ContentUtils.prepareMoviePerListValues(orderTypeId, movieId, rank++)
+                            );
+                        }
+                        db.setTransactionSuccessful();
+                    } finally {
+                        db.endTransaction();
+                    }
+                    getContext().getContentResolver().notifyChange(uri, null);
+                }
                 return returnCount;
             default:
                 return super.bulkInsert(uri, values);

@@ -3,42 +3,52 @@ package be.ryan.popularmovies.sync;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
+import android.content.AsyncQueryHandler;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SyncRequest;
 import android.content.SyncResult;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.ListType;
+import be.ryan.popularmovies.db.MoviePerListColumns;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
-import be.ryan.popularmovies.event.MovieListEvent;
-import be.ryan.popularmovies.event.PopularMovieEvent;
-import be.ryan.popularmovies.tmdb.TmdbService;
-import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
-import be.ryan.popularmovies.ui.fragment.MovieListFragment;
-import be.ryan.popularmovies.util.Preferences;
-import de.greenrobot.event.EventBus;
+import be.ryan.popularmovies.tmdb.TmdbRestClient;
+import be.ryan.popularmovies.util.DbUtil;
 import retrofit.Callback;
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+
+import static be.ryan.popularmovies.provider.PopularMoviesContract.MovieEntry;
 
 /**
  * Created by ryan on 6/09/15.
  */
-public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements RequestInterceptor, Callback<TmdbMoviesPage>{
+public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final String TAG = "PopMovSyncAdapter";
 
-    // Interval at which to be.ryan.popularmovies.sync with the weather, in seconds.
     // 60 seconds (1 minute) * 180 = 3 hours
     public static final int SYNC_INTERVAL = 60;
     public static final int SYNC_FLEXTIME = SYNC_INTERVAL / 3;
+
+    public static final String SYNC_TYPE = "order_type";
+    public static final String KEY_LIST_PATH_NAME = "path";
+    public static final String KEY_MOVIE = "movie";
+
+    public static final int SYNC_ORDER_TYPE_POPULAR = 1;
+    public static final int SYNC_ORDER_TYPE_TOP_RATED = 2;
+    public static final int SYNC_ORDER_TYPE_UPCOMING = 3;
+    public static final int SYNC_ORDER_TYPE_LATEST = 4;
+
+    public static final int SYNC_MOVIE_LIST = 5;
+
+    public static final int GET_MOVIE_REVIEWS = 5;
+    public static final int GET_MOVIE_TRAILERS = 6;
 
 
     public PopMovSyncAdapter(Context context, boolean autoInitialize) {
@@ -46,31 +56,52 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
     }
 
     @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        requestMovieList();
-    }
+    public void onPerformSync(Account account, final Bundle extras, String authority, final ContentProviderClient provider, SyncResult syncResult) {
+        final int syncType = extras.getInt(SYNC_TYPE);
+//        if the app is ran for the first time, populate the database by making all requests
+        switch (syncType) {
+            case SYNC_MOVIE_LIST:
+                final String orderType = extras.getString(KEY_LIST_PATH_NAME);
+                Callback<TmdbMoviesPage> listMovieCallBack = new Callback<TmdbMoviesPage>() {
+                    @Override
+                    public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
+                        AsyncQueryHandler handler = new AsyncQueryHandler(getContext().getContentResolver()){
+                            @Override
+                            protected void onInsertComplete(int token, Object cookie, Uri uri) {
+                                Log.d(TAG, "Insert complete: " + uri.toString());
+                            }
+                        };
 
-    private void requestMovieList() {
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(TmdbWebServiceContract.BASE_URL)
-                .setRequestInterceptor(this)
-                .build();
-        final TmdbService tmdbService = restAdapter.create(TmdbService.class);
+                        for (int i = 0; i < tmdbMoviesPage.getTmdbMovieList().size(); i++) {
+                            ContentValues values = DbUtil.getTmdbMovieContentValues(tmdbMoviesPage.getTmdbMovieList().get(i));
+                            values.put(MoviePerListColumns.RANK, i);
+                            handler.startInsert(i, null, Uri.withAppendedPath(MovieEntry.CONTENT_URI,orderType),values);
+                        }
+                    }
 
-        //TODO: when title is null request discover/movies/
-        final String title = Preferences.getMovieListSortType(getContext());
+                    @Override
+                    public void failure(RetrofitError error) {
 
-        Log.d(TAG, "Performing sync of movie list sort type : " + title);
-        if (title != null) {
-            if (title.equals(getContext().getString(R.string.title_highest_rated))) {
-                tmdbService.listTopRatedMovies(this);
-            } else if (title.equals(getContext().getString(R.string.title_popular_movies))) {
-                tmdbService.listPopularMovies(this);
-            } else if (title.equals(getContext().getString(R.string.title_upcoming))) {
-                tmdbService.listUpcoming(this);
-            } else if (title.equals(getContext().getString(R.string.title_now_playing))) {
-                tmdbService.listNowPlayingMovies(this);
-            }
+                    }
+                };
+                switch (orderType) {
+                    case ListType.POPULAR: {
+                        TmdbRestClient.getInstance().getService().listPopularMovies(listMovieCallBack);
+                        break;
+                    }
+                    case ListType.UPCOMING: {
+                        TmdbRestClient.getInstance().getService().listUpcoming(listMovieCallBack);
+                        break;
+                    }
+                    case ListType.TOP: {
+                        TmdbRestClient.getInstance().getService().listTopRatedMovies(listMovieCallBack);
+                        break;
+                    }
+                    case ListType.LATEST: {
+                        TmdbRestClient.getInstance().getService().listNowPlayingMovies(listMovieCallBack);
+                        break;
+                    }
+                }
         }
     }
 
@@ -121,20 +152,5 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter implements Re
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
         ContentResolver.requestSync(getSyncAccount(context),
                 context.getString(R.string.content_authority), bundle);
-    }
-
-    @Override
-    public void intercept(RequestFacade request) {
-        request.addQueryParam(TmdbWebServiceContract.QUERY_PARAM_API_KEY, TmdbWebServiceContract.API_KEY);
-    }
-
-    @Override
-    public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
-        EventBus.getDefault().post(tmdbMoviesPage);
-    }
-
-    @Override
-    public void failure(RetrofitError error) {
-        Log.d(TAG, error.toString());
     }
 }

@@ -37,12 +37,18 @@ public class ReviewsDialog extends AppCompatDialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_reviews, container, false);
         TmdbVideoReviewsResponse reviewsResponse = Parcels.unwrap(getArguments().getParcelable(REVIEWS));
-        recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_reviews_dialog);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new ReviewsAdapter(reviewsResponse, getActivity()));
+        View view = null;
+        if (reviewsResponse.getReviews() == null) {
+            //TODO load empty view
+        }else{
+            view = inflater.inflate(R.layout.dialog_reviews, container, false);
+
+            recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_reviews_dialog);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(new ReviewsAdapter(reviewsResponse, getActivity()));
+        }
         return view;
     }
 

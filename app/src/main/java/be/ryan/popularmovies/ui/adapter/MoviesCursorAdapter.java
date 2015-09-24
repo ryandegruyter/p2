@@ -44,7 +44,7 @@ public class MoviesCursorAdapter extends RecyclerView.Adapter<MovieHolder> {
 
     private void bindData(MovieHolder holder) {
         String backDropPath = movies.getString(movies.getColumnIndex(MovieColumns.BACKDROP_PATH));
-        int movieId = movies.getInt(movies.getColumnIndex(MovieColumns.MOVIE_ID));
+        int movieId = movies.getInt(movies.getColumnIndex(MovieColumns._ID));
         String title = movies.getString(movies.getColumnIndex(MovieColumns.ORIGINAL_TITLE));
         String overView = movies.getString(movies.getColumnIndex(MovieColumns.OVERVIEW));
         String posterPath = movies.getString(movies.getColumnIndex(MovieColumns.POSTER_PATH));

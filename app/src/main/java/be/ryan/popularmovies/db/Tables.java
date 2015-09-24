@@ -5,4 +5,7 @@ package be.ryan.popularmovies.db;
  */
 public interface Tables {
     String Movie = "movie";
+    String Favorite = "favorite";
+    String List = "list";
+    String MoviePerList = "movieperlist";
 }

@@ -6,6 +6,7 @@ import be.ryan.popularmovies.domain.TmdbMovie;
  * Created by ryan on 6/09/15.
  */
 public class Util {
+
     static TmdbMovie getMovieForTesting() {
         TmdbMovie tmdbMovie = new TmdbMovie();
         tmdbMovie.setBackdropImgPath("url");
