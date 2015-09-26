@@ -3,7 +3,6 @@ package be.ryan.popularmovies.sync;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.AbstractThreadedSyncAdapter;
-import android.content.AsyncQueryHandler;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -11,14 +10,15 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 
 import be.ryan.popularmovies.R;
-import be.ryan.popularmovies.db.ListType;
-import be.ryan.popularmovies.db.MoviePerListColumns;
+import be.ryan.popularmovies.db.AsyncQueryHandler;
+import be.ryan.popularmovies.db.MovieListType;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
 import be.ryan.popularmovies.tmdb.TmdbRestClient;
-import be.ryan.popularmovies.util.DbUtil;
+import be.ryan.popularmovies.util.ContentUtils;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -65,18 +65,19 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
                 Callback<TmdbMoviesPage> listMovieCallBack = new Callback<TmdbMoviesPage>() {
                     @Override
                     public void success(TmdbMoviesPage tmdbMoviesPage, Response response) {
-                        AsyncQueryHandler handler = new AsyncQueryHandler(getContext().getContentResolver()){
+                        final long startTime = SystemClock.elapsedRealtime();
+
+                        AsyncQueryHandler handler = new AsyncQueryHandler(getContext().getContentResolver()) {
+
                             @Override
-                            protected void onInsertComplete(int token, Object cookie, Uri uri) {
-                                Log.d(TAG, "Insert complete: " + uri.toString());
+                            protected void onBulkInsertComplete(int token, Object cookie, int result) {
+                                long elapsed = SystemClock.elapsedRealtime() - startTime;
+                                Log.i(TAG, "bulkInsert complete in " + elapsed + " ms");
                             }
                         };
 
-                        for (int i = 0; i < tmdbMoviesPage.getTmdbMovieList().size(); i++) {
-                            ContentValues values = DbUtil.getTmdbMovieContentValues(tmdbMoviesPage.getTmdbMovieList().get(i));
-                            values.put(MoviePerListColumns.RANK, i);
-                            handler.startInsert(i, null, Uri.withAppendedPath(MovieEntry.CONTENT_URI,orderType),values);
-                        }
+                        final ContentValues[] values = ContentUtils.getValuesFromTmdbPage(tmdbMoviesPage);
+                        handler.startBulkInsert(1, null, Uri.withAppendedPath(MovieEntry.CONTENT_URI, orderType), values);
                     }
 
                     @Override
@@ -85,19 +86,19 @@ public class PopMovSyncAdapter extends AbstractThreadedSyncAdapter {
                     }
                 };
                 switch (orderType) {
-                    case ListType.POPULAR: {
+                    case MovieListType.POPULAR: {
                         TmdbRestClient.getInstance().getService().listPopularMovies(listMovieCallBack);
                         break;
                     }
-                    case ListType.UPCOMING: {
+                    case MovieListType.UPCOMING: {
                         TmdbRestClient.getInstance().getService().listUpcoming(listMovieCallBack);
                         break;
                     }
-                    case ListType.TOP: {
+                    case MovieListType.TOP: {
                         TmdbRestClient.getInstance().getService().listTopRatedMovies(listMovieCallBack);
                         break;
                     }
-                    case ListType.LATEST: {
+                    case MovieListType.LATEST: {
                         TmdbRestClient.getInstance().getService().listNowPlayingMovies(listMovieCallBack);
                         break;
                     }

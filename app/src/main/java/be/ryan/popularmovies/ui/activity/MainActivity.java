@@ -4,17 +4,14 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
+import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
-import be.ryan.popularmovies.db.PopMovSqlHelper;
-import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
-import be.ryan.popularmovies.util.PrefUtil;
-
-import static be.ryan.popularmovies.util.PrefUtil.*;
 
 public class MainActivity extends AppCompatActivity{
 
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
+    private static final String TAG = "MainActivity";
     public String TAG_MOVIE_DETAIL_FRAGMENT = "detail_movie";
 
     private LinearLayout mContainerView;
@@ -26,6 +23,10 @@ public class MainActivity extends AppCompatActivity{
 
         mContainerView = (LinearLayout) findViewById(R.id.container_main);
 
+        if (App.runsOnTablet) {
+
+        }
+
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -33,4 +34,5 @@ public class MainActivity extends AppCompatActivity{
                     .commit();
         }
     }
+
 }

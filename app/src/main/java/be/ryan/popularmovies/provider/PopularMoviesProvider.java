@@ -6,15 +6,12 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Bundle;
 
 import be.ryan.popularmovies.db.ListColumns;
-import be.ryan.popularmovies.db.ListType;
 import be.ryan.popularmovies.db.MovieColumns;
-import be.ryan.popularmovies.db.MoviePerListColumns;
+import be.ryan.popularmovies.db.MovieListType;
 import be.ryan.popularmovies.db.PopMovSqlHelper;
 import be.ryan.popularmovies.db.Tables;
-import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.util.ContentUtils;
 import be.ryan.popularmovies.util.ErrorMessages;
 
@@ -69,37 +66,28 @@ public class PopularMoviesProvider extends ContentProvider {
                         selectionArgs, null, null, sortOrder
                 );
                 break;
-            case MOVIE_LIST_POPULAR_REMOTE:
-                Bundle syncInfo = new Bundle();
-                syncInfo.putInt(PopMovSyncAdapter.SYNC_TYPE, PopMovSyncAdapter.SYNC_ORDER_TYPE_POPULAR);
-                PopMovSyncAdapter.syncImmediately(getContext(), syncInfo);
-                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.POPULAR}, null, null, sortOrder
-                );
-                break;
             case MOVIE_LIST_POPULAR:
                 cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
-                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.POPULAR}, null, null, sortOrder
+                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.POPULAR}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_UPCOMING:
                 cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
-                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.UPCOMING}, null, null, sortOrder
+                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.UPCOMING}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_TOP_RATED:
                 cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
-                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.TOP}, null, null, sortOrder
+                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.TOP}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_LATEST:
                 cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
-                        projection, ListColumns.TYPE + " = ?", new String[]{ListType.LATEST}, null, null, sortOrder
+                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.LATEST}, null, null, sortOrder
                 );
                 break;
             case FAVORITES:
@@ -151,41 +139,9 @@ public class PopularMoviesProvider extends ContentProvider {
                     throw new android.database.SQLException(ErrorMessages.getFailedToInsertRowMsg(uri));
                 break;
             }
-            case MOVIE_LIST_POPULAR: case MOVIE_LIST_LATEST:case MOVIE_LIST_TOP_RATED: case MOVIE_LIST_UPCOMING: {
-                String orderType = uri.getLastPathSegment();
-                int rank = values.getAsInteger(MoviePerListColumns.RANK);
-                values.remove(MoviePerListColumns.RANK);
-                Cursor cursor = dbHelper.getReadableDatabase().rawQuery("select " + ListColumns._ID + " from " + Tables.List + " where " + ListColumns.TYPE + " = ?", new String[]{orderType});
-                long _id = -1;
-                if (cursor.moveToFirst()) {
-                    int orderTypeId = cursor.getInt(cursor.getColumnIndex(ListColumns._ID));
-                    db.beginTransaction();
-                    try {
-                        _id = db.replace(
-                                Tables.Movie,
-                                null,
-                                values
-                        );
-
-                        db.replace(
-                                Tables.MoviePerList,
-                                null,
-                                ContentUtils.prepareMoviePerListValues(orderTypeId, values.getAsInteger(MovieColumns._ID), rank)
-                        );
-
-                        db.setTransactionSuccessful();
-                    } finally {
-                        db.endTransaction();
-                    }
-                    getContext().getContentResolver().notifyChange(uri, null);
-                }
-                returnUri = PopularMoviesContract.MovieEntry.buildMovieUri(_id);
-                break;
-            }
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
         }
-
         getContext().getContentResolver().notifyChange(uri, null);
         return returnUri;
 
@@ -256,24 +212,40 @@ public class PopularMoviesProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             case MOVIE_LIST_POPULAR: case MOVIE_LIST_LATEST:case MOVIE_LIST_TOP_RATED: case MOVIE_LIST_UPCOMING:
-                int rank = 0;
-                String orderType = uri.getLastPathSegment();
-                Cursor cursor = dbHelper.getReadableDatabase().rawQuery("select " + ListColumns._ID + " from " + Tables.List + " where " + ListColumns.TYPE + " = ?", new String[]{orderType});
+                final String movieListOrder = uri.getLastPathSegment();
+
+                StringBuilder sql = new StringBuilder();
+                sql
+                        .append("SELECT ")
+                        .append(ListColumns._ID)
+                        .append(" FROM ")
+                        .append(Tables.List)
+                        .append(" WHERE ")
+                        .append(ListColumns.ORDER_TYPE)
+                        .append(" = ?;");
+
+                Cursor cursor = db.rawQuery(sql.toString(), new String[]{movieListOrder});
+
                 if (cursor.moveToFirst()) {
-                    int orderTypeId = cursor.getInt(cursor.getColumnIndex(ListColumns._ID));
+                    int movieRank = 0;
+                    int movieListOrderId = cursor.getInt(cursor.getColumnIndex(ListColumns._ID));
+
                     db.beginTransaction();
                     try {
                         for (ContentValues value : values) {
-                            long _id = db.replace(Tables.Movie, null, value);
+//                            insert movie: might be a new movie, if not ignore
+                            db.insertWithOnConflict(Tables.Movie, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+
+//                            insert or replace into our many to many table, binds a movie to a list type with rank, should always replace, might have a different rank
+                            int movieId = (int) value.get(MovieColumns._ID);
+                            ContentValues movieToListValues = ContentUtils.prepareMoviePerListValues(movieListOrderId, movieId, movieRank++);
+                            long _id = db.replace(
+                                    Tables.MoviePerList,
+                                    null,movieToListValues
+                            );
                             if (_id != -1) {
                                 returnCount++;
                             }
-                            int movieId = (int) value.get(MovieColumns._ID);
-                            db.replace(
-                                    Tables.MoviePerList,
-                                    null,
-                                    ContentUtils.prepareMoviePerListValues(orderTypeId, movieId, rank++)
-                            );
                         }
                         db.setTransactionSuccessful();
                     } finally {

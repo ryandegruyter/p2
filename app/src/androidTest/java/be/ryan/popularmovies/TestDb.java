@@ -2,17 +2,14 @@ package be.ryan.popularmovies;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.test.AndroidTestCase;
-import android.widget.SearchView;
 
 import junit.framework.Assert;
 
 import be.ryan.popularmovies.db.ListColumns;
-import be.ryan.popularmovies.db.ListType;
-import be.ryan.popularmovies.db.MovieColumns;
+import be.ryan.popularmovies.db.MovieListType;
 import be.ryan.popularmovies.db.MoviePerListColumns;
 import be.ryan.popularmovies.db.PopMovSqlHelper;
 import be.ryan.popularmovies.db.Tables;
@@ -57,7 +54,7 @@ public class TestDb extends AndroidTestCase {
         ContentValues tmdbMovieContentValues = DbUtil.getTmdbMovieContentValues(movieForTesting);
         popMovSqlHelper.getWritableDatabase().insert(Tables.Movie, null, tmdbMovieContentValues);
 
-        Cursor query = popMovSqlHelper.getReadableDatabase().query(Tables.List, new String[]{ListColumns._ID}, ListColumns.TYPE + " = ?", new String[]{ListType.POPULAR}, null, null, null);
+        Cursor query = popMovSqlHelper.getReadableDatabase().query(Tables.List, new String[]{ListColumns._ID}, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.POPULAR}, null, null, null);
         Assert.assertTrue(query.moveToFirst());
 
         int id = query.getInt(query.getColumnIndex(ListColumns._ID));
@@ -69,16 +66,16 @@ public class TestDb extends AndroidTestCase {
 
         Cursor qry = sqLiteQueryBuilder.query(
                 popMovSqlHelper.getReadableDatabase(),
-                new String[]{ListColumns.TYPE, MoviePerListColumns.RANK},
+                new String[]{ListColumns.ORDER_TYPE, MoviePerListColumns.RANK},
                 null,
                 null, null, null, null
         );
 
         qry.moveToFirst();
         int rank = qry.getInt(qry.getColumnIndex(MoviePerListColumns.RANK));
-        String orderType = qry.getString(qry.getColumnIndex(ListColumns.TYPE));
+        String orderType = qry.getString(qry.getColumnIndex(ListColumns.ORDER_TYPE));
 
         assertEquals(2, rank);
-        assertEquals(ListType.POPULAR, orderType);
+        assertEquals(MovieListType.POPULAR, orderType);
     }
 }

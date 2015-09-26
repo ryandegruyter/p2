@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import be.ryan.popularmovies.R;
-import be.ryan.popularmovies.db.ListType;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.adapter.MoviesCursorAdapter;
@@ -28,7 +27,7 @@ import be.ryan.popularmovies.util.PrefUtil;
  */
 public class ListMovieFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     public static final String KEY_TITLE = "title";
-    private static final String KEY_ORDER_TYPE = "order_type";
+    private static final String KEY_MOVIE_LIST_ORDER_TYPE = "order_type";
 
     private RecyclerView mMovieListRecyclerView;
     private GridLayoutManager mPopularMoviesLayoutManager;
@@ -36,8 +35,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
     public static ListMovieFragment newInstance(String title, String listType) {
         Bundle args = new Bundle();
         args.putString(KEY_TITLE, title);
-        // TODO: 23/09/15 force type safety for listtype
-        args.putString(KEY_ORDER_TYPE, listType);
+        args.putString(KEY_MOVIE_LIST_ORDER_TYPE, listType);
         ListMovieFragment fragment = new ListMovieFragment();
         fragment.setArguments(args);
         return fragment;
@@ -45,7 +43,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        String orderType = getArguments().getString(KEY_ORDER_TYPE);
+        String orderType = getArguments().getString(KEY_MOVIE_LIST_ORDER_TYPE);
         if (PrefUtil.isFirstRun(getContext(), orderType)) {
             Bundle syncInfo = new Bundle();
             syncInfo.putInt(PopMovSyncAdapter.SYNC_TYPE, PopMovSyncAdapter.SYNC_MOVIE_LIST);
@@ -54,25 +52,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
             PrefUtil.setFirstRunFinished(getContext(), orderType);
         }
 
-        int id = 0;
-        switch (getArguments().getString(KEY_ORDER_TYPE)) {
-            case ListType.TOP:
-                id = 1;
-                break;
-            case ListType.POPULAR:
-                id = 2;
-                break;
-            case ListType.LATEST:
-                id = 3;
-                break;
-            case ListType.UPCOMING:
-                id = 4;
-                break;
-            case ListType.Favorites:
-                id = 5;
-                break;
-        }
-        getLoaderManager().initLoader(id, null, this);
+        getLoaderManager().initLoader(1, null, this);
         super.onActivityCreated(savedInstanceState);
     }
 
@@ -90,7 +70,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        final Uri qryUri = PopularMoviesContract.MovieEntry.buildMovieListUri(getArguments().getString(KEY_ORDER_TYPE));
+        final Uri qryUri = PopularMoviesContract.MovieEntry.buildMovieListUri(getArguments().getString(KEY_MOVIE_LIST_ORDER_TYPE));
         return new CursorLoader(getContext(), qryUri, null, null, null, null);
     }
 

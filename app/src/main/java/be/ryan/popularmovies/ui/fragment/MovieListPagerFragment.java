@@ -8,13 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import be.ryan.popularmovies.R;
-import be.ryan.popularmovies.db.ListType;
-import be.ryan.popularmovies.sync.PopMovSyncAdapter;
+import be.ryan.popularmovies.db.MovieListType;
 import be.ryan.popularmovies.ui.adapter.TmdbPagerAdapter;
 import be.ryan.popularmovies.ui.view.SlidingTabLayout;
-
-import static be.ryan.popularmovies.util.PrefUtil.*;
-import static be.ryan.popularmovies.util.PrefUtil.isFirstRun;
 
 
 public class MovieListPagerFragment extends Fragment{
@@ -39,11 +35,11 @@ public class MovieListPagerFragment extends Fragment{
         final View view = inflater.inflate(R.layout.fragment_movie_list_pager, container, false);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
         final Fragment[] fragments = {
-                ListMovieFragment.newInstance(getString(R.string.title_favorites),ListType.Favorites),
-                ListMovieFragment.newInstance(getString(R.string.title_now_playing) ,ListType.LATEST),
-                ListMovieFragment.newInstance(getString(R.string.title_popular_movies), ListType.POPULAR),
-                ListMovieFragment.newInstance(getString(R.string.title_highest_rated), ListType.TOP),
-                ListMovieFragment.newInstance(getString(R.string.title_upcoming), ListType.UPCOMING)
+                ListMovieFragment.newInstance(getString(R.string.title_favorites), MovieListType.Favorites),
+                ListMovieFragment.newInstance(getString(R.string.title_now_playing) , MovieListType.LATEST),
+                ListMovieFragment.newInstance(getString(R.string.title_popular_movies), MovieListType.POPULAR),
+                ListMovieFragment.newInstance(getString(R.string.title_highest_rated), MovieListType.TOP),
+                ListMovieFragment.newInstance(getString(R.string.title_upcoming), MovieListType.UPCOMING)
         };
 
         final TmdbPagerAdapter pagerAdapter = new TmdbPagerAdapter(getChildFragmentManager(), fragments);

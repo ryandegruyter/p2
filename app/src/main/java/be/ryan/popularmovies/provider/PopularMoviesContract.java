@@ -3,11 +3,6 @@ package be.ryan.popularmovies.provider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.net.Uri;
-import android.provider.BaseColumns;
-
-import java.util.List;
-
-import be.ryan.popularmovies.db.ListType;
 
 /**
  * Created by ryan on 6/09/15.
@@ -27,15 +22,16 @@ public class PopularMoviesContract {
                 BASE_CONTENT_URI.buildUpon().appendPath(PATH_MOVIE).build();
 
         public static final String PATH_POPULAR = "popular";
+        public static final String PATH_LATEST = "latest";
+        public static final String PATH_UPCOMING = "upcoming";
+        public static final String PATH_TOP = "top_rated";
+        public static final String PATH_FAVORITE = "favorites";
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
-        public static final String PATH_LATEST = ListType.LATEST;
-        public static final String PATH_UPCOMING = ListType.UPCOMING;
-        public static final String PATH_TOP = ListType.TOP;
-        public static final String PATH_FAVORITE = ListType.Favorites;
+
 
 
         public static Uri buildMovieUri(long id) {

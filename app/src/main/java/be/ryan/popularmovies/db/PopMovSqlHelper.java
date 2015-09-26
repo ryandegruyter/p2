@@ -1,11 +1,9 @@
 package be.ryan.popularmovies.db;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.graphics.Movie;
 
 /**
  * Created by ryan on 5/09/15.
@@ -62,14 +60,14 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
     private void createTableList(SQLiteDatabase db) {
         final String SQL_CREATE_LIST_TABLE = "CREATE TABLE " + Tables.List + " (" +
                 ListColumns._ID + " INTEGER PRIMARY KEY," +
-                ListColumns.TYPE + " TEXT NOT NULL UNIQUE);";
+                ListColumns.ORDER_TYPE + " TEXT NOT NULL UNIQUE);";
 
         db.execSQL(SQL_CREATE_LIST_TABLE);
         final String[] createDefaultListTypeQueries = new String[]{
-                "INSERT INTO " + Tables.List + " ( " + ListColumns.TYPE + " ) VALUES ('" + ListType.POPULAR + "')",
-                "INSERT INTO " + Tables.List + " ( " + ListColumns.TYPE + " ) VALUES ('" + ListType.LATEST+ "')",
-                "INSERT INTO " + Tables.List + " ( " + ListColumns.TYPE + " ) VALUES ('" + ListType.TOP + "')",
-                "INSERT INTO " + Tables.List + " ( " + ListColumns.TYPE + " ) VALUES ('" + ListType.UPCOMING + "')"
+                "INSERT INTO " + Tables.List + " ( " + ListColumns.ORDER_TYPE + " ) VALUES ('" + MovieListType.POPULAR + "')",
+                "INSERT INTO " + Tables.List + " ( " + ListColumns.ORDER_TYPE + " ) VALUES ('" + MovieListType.LATEST+ "')",
+                "INSERT INTO " + Tables.List + " ( " + ListColumns.ORDER_TYPE + " ) VALUES ('" + MovieListType.TOP + "')",
+                "INSERT INTO " + Tables.List + " ( " + ListColumns.ORDER_TYPE + " ) VALUES ('" + MovieListType.UPCOMING + "')"
         };
         for (String insertQry :
                 createDefaultListTypeQueries) {

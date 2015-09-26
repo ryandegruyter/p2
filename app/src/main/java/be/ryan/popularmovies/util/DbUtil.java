@@ -2,7 +2,6 @@ package be.ryan.popularmovies.util;
 
 import android.content.ContentValues;
 
-import be.ryan.popularmovies.db.ListType;
 import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.db.MoviePerListColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;

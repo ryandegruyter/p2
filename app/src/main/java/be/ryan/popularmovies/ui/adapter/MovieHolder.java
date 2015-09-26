@@ -12,6 +12,7 @@ import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.event.FetchReviewsEvent;
 import be.ryan.popularmovies.event.FetchTrailerEvent;
+import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import de.greenrobot.event.EventBus;
 
@@ -56,6 +57,9 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
                 break;
             case R.id.menu_item_reviews:
                 EventBus.getDefault().post(new FetchReviewsEvent(mTmdbMovie.getId()));
+                break;
+            case R.id.menu_item_favorite:
+                EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie.getId()));
                 break;
         }
         return true;
