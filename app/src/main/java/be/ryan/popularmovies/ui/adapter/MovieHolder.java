@@ -59,7 +59,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
                 EventBus.getDefault().post(new FetchReviewsEvent(mTmdbMovie.getId()));
                 break;
             case R.id.menu_item_favorite:
-                EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie.getId()));
+                EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie));
                 break;
         }
         return true;
