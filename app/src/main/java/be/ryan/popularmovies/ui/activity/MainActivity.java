@@ -6,6 +6,7 @@ import android.widget.LinearLayout;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.MovieListEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
@@ -36,6 +37,15 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    /**
+     * Called when a user clicks on a favorite button so he can add or remove a movie from its favorites
+     *
+     * @param favoriteEvent
+     */
+    public void onEvent(FavoriteEvent favoriteEvent) {
+
+
+    }
     /**
      * Called when a user clicks a movie poster from the list
      * @param movieEvent PopularMovieEvent
