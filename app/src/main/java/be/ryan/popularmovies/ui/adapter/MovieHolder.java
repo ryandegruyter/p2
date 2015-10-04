@@ -10,6 +10,7 @@ import com.squareup.picasso.Picasso;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbMovie;
+import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.FetchReviewsEvent;
 import be.ryan.popularmovies.event.FetchTrailerEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
@@ -46,7 +47,11 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
         //TODO: Set Error Picture
         //TODO: PlaceholdeR?
         mTmdbMovie = movie;
-        Picasso.with(mPosterView.getContext()).load(uri).fit().centerCrop().into(mPosterView);
+        Picasso.with(mPosterView.getContext())
+                .load(uri)
+                .fit()
+                .centerCrop()
+                .into(mPosterView);
     }
 
     @Override
@@ -59,7 +64,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
                 EventBus.getDefault().post(new FetchReviewsEvent(mTmdbMovie.getId()));
                 break;
             case R.id.menu_item_favorite:
-                EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie));
+                EventBus.getDefault().post(new FavoriteEvent(mTmdbMovie.getId()));
                 break;
         }
         return true;
