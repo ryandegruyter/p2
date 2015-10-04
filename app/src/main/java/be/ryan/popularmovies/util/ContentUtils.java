@@ -35,4 +35,8 @@ public class ContentUtils {
         values.put(MoviePerListColumns.RANK, rank);
         return values;
     }
+
+    public static ContentValues prepareFavoriteValues(int movieId) {
+        return null;
+    }
 }

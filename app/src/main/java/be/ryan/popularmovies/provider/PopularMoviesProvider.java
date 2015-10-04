@@ -29,6 +29,7 @@ public class PopularMoviesProvider extends ContentProvider {
     private static final int MOVIE_LIST_POPULAR_REMOTE = 105;
     private static final String TAG = "PopularMoviesProvider";
     private static final int FAVORITES = 106;
+    private static final int UPDATE_FAVORITE = 107;
 
     private PopMovSqlHelper dbHelper;
 
@@ -44,6 +45,7 @@ public class PopularMoviesProvider extends ContentProvider {
         matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_FAVORITE, FAVORITES);
         matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/" + PopularMoviesContract.MovieEntry.PATH_POPULAR + "/" + PopularMoviesContract.PATH_FLAG_REMOTE, MOVIE_LIST_POPULAR_REMOTE);
 
+        matcher.addURI(authority, PopularMoviesContract.PATH_MOVIE + "/#/*", UPDATE_FAVORITE);
         return matcher;
     }
 
@@ -120,6 +122,8 @@ public class PopularMoviesProvider extends ContentProvider {
                 return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
             case FAVORITES:
                 return PopularMoviesContract.MovieEntry.CONTENT_TYPE;
+            case UPDATE_FAVORITE:
+                return PopularMoviesContract.MovieEntry.CONTENT_ITEM_TYPE;
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
         }

@@ -14,8 +14,10 @@ import be.ryan.popularmovies.util.PrefUtil;
  * Created by ryan on 23/09/15.
  */
 public class App extends Application{
+    public static final boolean DEBUG = true;
+
     public static boolean runsOnTablet = false;
-    public static final boolean DEBUG = false;
+
     private static final String TAG = "App";
 
     @Override

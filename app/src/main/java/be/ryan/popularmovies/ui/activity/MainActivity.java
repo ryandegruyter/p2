@@ -6,11 +6,14 @@ import android.widget.LinearLayout;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.MovieListEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
+import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
+import be.ryan.popularmovies.util.ContentUtils;
 import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AppCompatActivity{
@@ -43,8 +46,22 @@ public class MainActivity extends AppCompatActivity{
      * @param favoriteEvent
      */
     public void onEvent(FavoriteEvent favoriteEvent) {
+        if (favoriteEvent.isFavorite) {
+            int rowsDeleted = getContentResolver().delete(
+                    PopularMoviesContract.MovieEntry.CONTENT_URI,
+                    MovieColumns.MOVIE_ID + " = ?",
+                    new String[]{String.valueOf(favoriteEvent.movieId)}
+            );
 
+            // TODO: 04.10.15  rowsdeleted should be 1 at all times, handle if   rowsDeleted >= 1 or <= 0
 
+        }else {
+            // content resolve handles insert or update
+            getContentResolver().insert(
+                    PopularMoviesContract.MovieEntry.CONTENT_URI,
+                    ContentUtils.prepareFavoriteValues(favoriteEvent.movieId)
+            );
+        }
     }
     /**
      * Called when a user clicks a movie poster from the list
