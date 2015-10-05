@@ -32,6 +32,7 @@ public class MoviesAdapter extends android.support.v7.widget.RecyclerView.Adapte
 
     @Override
     public void onBindViewHolder(MovieHolder viewHolder, int position) {
+        // TODO: 04.10.15 check if movie is a favorite, set button
         viewHolder.bindData(mTmdbMoviesList.get(position));
     }
 

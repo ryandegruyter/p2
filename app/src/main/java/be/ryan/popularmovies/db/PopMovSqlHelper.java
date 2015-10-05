@@ -30,6 +30,21 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
         return queryBuilder;
     }
 
+    public static SQLiteQueryBuilder getMoviePerListAndIsFavoriteQueryBuilder(){
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        queryBuilder.setTables(
+                Tables.MoviePerList +
+                        " INNER JOIN " + Tables.List + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.LIST_ID +
+                        " = " + Tables.List + "." + ListColumns._ID +
+                        " INNER JOIN " + Tables.Movie + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.MOVIE_ID +
+                        " = " + Tables.Movie + "." + MovieColumns._ID +
+                        " INNER JOIN " + Tables.Favorite + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.MOVIE_ID +
+                        " = " + Tables.Favorite + "." + FavoriteColumns.MOVIE_ID
+        );
+
+        return queryBuilder;
+    }
+
     public static SQLiteQueryBuilder getFavoritesQueryBuilder() {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(

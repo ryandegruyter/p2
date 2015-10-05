@@ -69,25 +69,25 @@ public class PopularMoviesProvider extends ContentProvider {
                 );
                 break;
             case MOVIE_LIST_POPULAR:
-                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
                         projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.POPULAR}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_UPCOMING:
-                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
                         projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.UPCOMING}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_TOP_RATED:
-                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
                         projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.TOP}, null, null, sortOrder
                 );
                 break;
             case MOVIE_LIST_LATEST:
-                cursor = PopMovSqlHelper.getMoviePerListQueryBuilder().query(
+                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
                         dbHelper.getReadableDatabase(),
                         projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.LATEST}, null, null, sortOrder
                 );
