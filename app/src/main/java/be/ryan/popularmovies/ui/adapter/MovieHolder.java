@@ -22,9 +22,11 @@ import de.greenrobot.event.EventBus;
  */
 public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
 
+    MenuItem mFavoriteMenuItem;
     ImageView mPosterView = null;
     Toolbar mMediaToolbar = null;
     TmdbMovie mTmdbMovie;
+    private boolean isFavorite;
 
     @Override
     public void onClick(View v) {
@@ -39,11 +41,13 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
         mMediaToolbar = (Toolbar) itemView.findViewById(R.id.media_toolbar);
         mMediaToolbar.inflateMenu(R.menu.menu_media_toolbar);
         mMediaToolbar.setOnMenuItemClickListener(this);
+        mFavoriteMenuItem = mMediaToolbar.getMenu().findItem(R.id.menu_item_favorite);
     }
 
-    void bindData(TmdbMovie movie) {
+    void bindData(TmdbMovie movie, boolean isFavorite) {
         final String posterImgPath = movie.getPosterImgPath();
         String uri = TmdbWebServiceContract.BASE_POSTER_IMG_URL + "/" + posterImgPath;
+        setIsFavorite(isFavorite);
         //TODO: Set Error Picture
         //TODO: PlaceholdeR?
         mTmdbMovie = movie;
@@ -64,10 +68,20 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
                 EventBus.getDefault().post(new FetchReviewsEvent(mTmdbMovie.getId()));
                 break;
             case R.id.menu_item_favorite:
-                EventBus.getDefault().post(new FavoriteEvent(mTmdbMovie.getId(),item.isChecked()));
-                item.setChecked(!item.isChecked());
+                EventBus.getDefault().post(new FavoriteEvent(mTmdbMovie.getId(), item.isChecked()));
+                setIsFavorite(!item.isChecked());
                 break;
         }
         return true;
+    }
+
+    public void setIsFavorite(boolean isFavorite) {
+        if (isFavorite) {
+            mFavoriteMenuItem.setChecked(isFavorite);
+            mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+        }else{
+            mFavoriteMenuItem.setChecked(isFavorite);
+            mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_off_mtrl_alpha);
+        }
     }
 }

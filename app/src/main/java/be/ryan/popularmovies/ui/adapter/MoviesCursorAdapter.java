@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
 
@@ -51,6 +52,8 @@ public class MoviesCursorAdapter extends RecyclerView.Adapter<MovieHolder> {
         String releaseDate = movies.getString(movies.getColumnIndex(MovieColumns.RELEASE_DATE));
         double voteAverage = movies.getDouble(movies.getColumnIndex(MovieColumns.VOTE_AVERAGE));
         int voteCount = movies.getInt(movies.getColumnIndex(MovieColumns.VOTE_COUNT));
+        String isfav = movies.getString(movies.getColumnIndex(FavoriteColumns.IS_FAVORITE));
+        Boolean isFavorite = Boolean.parseBoolean(isfav);
 
         TmdbMovie movie = new TmdbMovie();
         movie.setBackdropImgPath(backDropPath);
@@ -62,7 +65,7 @@ public class MoviesCursorAdapter extends RecyclerView.Adapter<MovieHolder> {
         movie.setOverView(overView);
         movie.setPosterImgPath(posterPath);
 
-        holder.bindData(movie);
+        holder.bindData(movie, isFavorite);
     }
 
 

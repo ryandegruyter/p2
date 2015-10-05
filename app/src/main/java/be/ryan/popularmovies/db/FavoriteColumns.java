@@ -7,4 +7,5 @@ import android.provider.BaseColumns;
  */
 public interface FavoriteColumns extends BaseColumns{
     String MOVIE_ID = "movie_id";
+    String IS_FAVORITE = "fav";
 }

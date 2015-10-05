@@ -4,6 +4,7 @@ import android.content.ContentValues;
 
 import java.util.List;
 
+import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.db.MoviePerListColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
@@ -37,6 +38,8 @@ public class ContentUtils {
     }
 
     public static ContentValues prepareFavoriteValues(int movieId) {
-        return null;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FavoriteColumns.MOVIE_ID, movieId);
+        return contentValues;
     }
 }

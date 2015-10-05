@@ -33,8 +33,8 @@ public class PopularMoviesContract {
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIE;
 
 
-        public static Uri buildSetFavoriteUri(int movieId, boolean isFavorite) {
-            return CONTENT_URI.buildUpon().appendEncodedPath(String.valueOf(movieId)).appendEncodedPath(String.valueOf(isFavorite)).build();
+        public static Uri buildFavoriteUri() {
+            return Uri.withAppendedPath(CONTENT_URI, PATH_FAVORITE);
         }
 
         public static Uri buildMovieUri(long id) {

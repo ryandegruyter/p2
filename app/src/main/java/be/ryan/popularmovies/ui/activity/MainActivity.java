@@ -2,13 +2,12 @@ package be.ryan.popularmovies.ui.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.LinearLayout;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.event.FavoriteEvent;
-import be.ryan.popularmovies.event.MovieListEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
@@ -48,8 +47,8 @@ public class MainActivity extends AppCompatActivity{
     public void onEvent(FavoriteEvent favoriteEvent) {
         if (favoriteEvent.isFavorite) {
             int rowsDeleted = getContentResolver().delete(
-                    PopularMoviesContract.MovieEntry.CONTENT_URI,
-                    MovieColumns.MOVIE_ID + " = ?",
+                    PopularMoviesContract.MovieEntry.buildFavoriteUri(),
+                    FavoriteColumns.MOVIE_ID + " = ?",
                     new String[]{String.valueOf(favoriteEvent.movieId)}
             );
 
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity{
         }else {
             // content resolve handles insert or update
             getContentResolver().insert(
-                    PopularMoviesContract.MovieEntry.CONTENT_URI,
+                    PopularMoviesContract.MovieEntry.buildFavoriteUri(),
                     ContentUtils.prepareFavoriteValues(favoriteEvent.movieId)
             );
         }

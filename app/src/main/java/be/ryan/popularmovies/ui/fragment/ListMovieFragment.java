@@ -46,6 +46,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
         String orderType = getArguments().getString(KEY_MOVIE_LIST_ORDER_TYPE);
         if (PrefUtil.isFirstRun(getContext(), orderType)) {
             Bundle syncInfo = new Bundle();
+
             syncInfo.putInt(PopMovSyncAdapter.SYNC_TYPE, PopMovSyncAdapter.SYNC_MOVIE_LIST);
             syncInfo.putString(PopMovSyncAdapter.KEY_LIST_PATH_NAME, orderType);
             PopMovSyncAdapter.syncImmediately(getContext(), syncInfo);

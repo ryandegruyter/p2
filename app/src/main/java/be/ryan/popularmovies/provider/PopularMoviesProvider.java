@@ -1,11 +1,13 @@
 package be.ryan.popularmovies.provider;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 import be.ryan.popularmovies.db.ListColumns;
 import be.ryan.popularmovies.db.MovieColumns;
@@ -69,33 +71,28 @@ public class PopularMoviesProvider extends ContentProvider {
                 );
                 break;
             case MOVIE_LIST_POPULAR:
-                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.POPULAR}, null, null, sortOrder
+                cursor = dbHelper.getReadableDatabase().rawQuery(
+                        PopMovSqlHelper.getRawQueryMovieList(), new String[]{MovieListType.POPULAR}
                 );
                 break;
             case MOVIE_LIST_UPCOMING:
-                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.UPCOMING}, null, null, sortOrder
+                cursor = dbHelper.getReadableDatabase().rawQuery(
+                        PopMovSqlHelper.getRawQueryMovieList(), new String[]{MovieListType.UPCOMING}
                 );
                 break;
             case MOVIE_LIST_TOP_RATED:
-                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.TOP}, null, null, sortOrder
+                cursor = dbHelper.getReadableDatabase().rawQuery(
+                        PopMovSqlHelper.getRawQueryMovieList(), new String[]{MovieListType.TOP}
                 );
                 break;
             case MOVIE_LIST_LATEST:
-                cursor = PopMovSqlHelper.getMoviePerListAndIsFavoriteQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, ListColumns.ORDER_TYPE + " = ?", new String[]{MovieListType.LATEST}, null, null, sortOrder
+                cursor = dbHelper.getReadableDatabase().rawQuery(
+                        PopMovSqlHelper.getRawQueryMovieList(), new String[]{MovieListType.LATEST}
                 );
                 break;
             case FAVORITES:
-                cursor = PopMovSqlHelper.getFavoritesQueryBuilder().query(
-                        dbHelper.getReadableDatabase(),
-                        projection, null, null, null, null, null
+                cursor = dbHelper.getReadableDatabase().rawQuery(
+                        PopMovSqlHelper.getRawQueryFavorites(), null, null
                 );
                 break;
             default:
@@ -138,15 +135,25 @@ public class PopularMoviesProvider extends ContentProvider {
             case MOVIE: {
                 long _id = db.insert(Tables.Movie, null, values);
                 if (_id > 0)
-                    returnUri = PopularMoviesContract.MovieEntry.buildMovieUri(_id);
+                    returnUri = ContentUris.withAppendedId(PopularMoviesContract.MovieEntry.CONTENT_URI, _id);
                 else
                     throw new android.database.SQLException(ErrorMessages.getFailedToInsertRowMsg(uri));
-                break;
+
             }
+            break;
+            case FAVORITES:{
+                long _id = db.insertWithOnConflict(Tables.Favorite, null, values,SQLiteDatabase.CONFLICT_IGNORE);
+                if (_id > 0)
+                    returnUri = ContentUris.withAppendedId(PopularMoviesContract.MovieEntry.CONTENT_URI, _id);
+                else
+                    throw new android.database.SQLException(ErrorMessages.getFailedToInsertRowMsg(uri));
+            }
+            break;
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(PopularMoviesContract.MovieEntry.CONTENT_URI, null);
         return returnUri;
 
     }
@@ -163,13 +170,18 @@ public class PopularMoviesProvider extends ContentProvider {
                 rowsDeleted = db.delete(
                         Tables.Movie, selection, selectionArgs);
                 break;
+            case FAVORITES:
+                rowsDeleted = db.delete(
+                        Tables.Favorite, selection, selectionArgs
+                );
+                break;
             default:
                 throw new UnsupportedOperationException(ErrorMessages.getUnknownUriMsg(uri));
         }
-
         // Because a null deletes all rows
         if (rowsDeleted != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            getContext().getContentResolver().notifyChange(PopularMoviesContract.MovieEntry.CONTENT_URI, null);
         }
         return rowsDeleted;
     }

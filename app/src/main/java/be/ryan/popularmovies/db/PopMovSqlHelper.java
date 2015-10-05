@@ -1,9 +1,18 @@
 package be.ryan.popularmovies.db;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQuery;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.util.Log;
+
+import org.parceler.guava.collect.Table;
+
+import be.ryan.popularmovies.event.FavoriteEvent;
 
 /**
  * Created by ryan on 5/09/15.
@@ -12,9 +21,23 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
 
     public static final String DB_NAME = "popmov.db";
     static final int DB_VERSION = 11;
+    private static final String TAG = "PopMovSqlHelper";
 
     public PopMovSqlHelper(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
+        super(context, DB_NAME, new SQLiteDatabase.CursorFactory() {
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
+                Log.d(TAG, query.toString());
+                return new SQLiteCursor(masterQuery, editTable, query);
+            }
+        }, DB_VERSION);
+    }
+
+    public static String getRawQueryMovieList() {
+        return "SELECT *, case when (select movie_id from favorite where movieperlist.movie_id = favorite.movie_id) is not null then 'true' else 'false' end as fav FROM movieperlist INNER JOIN list ON movieperlist.list_id = list._id INNER JOIN movie ON movieperlist.movie_id = movie._id WHERE (type = ?)";
+    }
+    public static String getRawQueryFavorites() {
+        return "SELECT *, case when movie_id is not null then 'true' else 'false' end as fav FROM favorite INNER JOIN movie ON favorite.movie_id = movie._id";
     }
 
     public static SQLiteQueryBuilder getMoviePerListQueryBuilder(){
@@ -30,18 +53,15 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
         return queryBuilder;
     }
 
-    public static SQLiteQueryBuilder getMoviePerListAndIsFavoriteQueryBuilder(){
+    public static SQLiteQueryBuilder getMoviePerListAndIsFavoriteQueryBuilder() {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(
-                Tables.MoviePerList +
+                Tables.Favorite + ", " + Tables.MoviePerList +
                         " INNER JOIN " + Tables.List + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.LIST_ID +
                         " = " + Tables.List + "." + ListColumns._ID +
                         " INNER JOIN " + Tables.Movie + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.MOVIE_ID +
-                        " = " + Tables.Movie + "." + MovieColumns._ID +
-                        " INNER JOIN " + Tables.Favorite + " ON " + Tables.MoviePerList + "." + MoviePerListColumns.MOVIE_ID +
-                        " = " + Tables.Favorite + "." + FavoriteColumns.MOVIE_ID
+                        " = " + Tables.Movie + "." + MovieColumns._ID
         );
-
         return queryBuilder;
     }
 
@@ -49,7 +69,7 @@ public class PopMovSqlHelper extends SQLiteOpenHelper{
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(
                 Tables.Favorite +
-                        " INNER JOIN " + Tables.Movie + " ON " + Tables.Favorite + "." + FavoriteColumns._ID +
+                        " INNER JOIN " + Tables.Movie + " ON " + Tables.Favorite + "." + FavoriteColumns.MOVIE_ID +
                         " = " + Tables.Movie + "." + MovieColumns._ID
         );
         return queryBuilder;
