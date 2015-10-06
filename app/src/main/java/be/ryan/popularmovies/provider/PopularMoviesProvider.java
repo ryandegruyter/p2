@@ -92,7 +92,7 @@ public class PopularMoviesProvider extends ContentProvider {
                 break;
             case FAVORITES:
                 cursor = dbHelper.getReadableDatabase().rawQuery(
-                        PopMovSqlHelper.getRawQueryFavorites(), null, null
+                        PopMovSqlHelper.getRawQueryFavorites(), null
                 );
                 break;
             default:

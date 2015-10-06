@@ -25,9 +25,11 @@
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
-            <Button
+            <ToggleButton
                 android:layout_alignParentRight="true"
                 android:text="fav"
+                android:textOff="@string/action_favorite"
+                android:textOn="@string/action_unfav"
                 android:id="@+id/btnFav"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />

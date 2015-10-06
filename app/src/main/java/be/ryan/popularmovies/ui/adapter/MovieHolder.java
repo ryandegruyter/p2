@@ -30,7 +30,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        EventBus.getDefault().post(mTmdbMovie);
+        EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie, isFavorite));
     }
 
 
@@ -76,10 +76,11 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
     }
 
     public void setIsFavorite(boolean isFavorite) {
+        this.isFavorite = isFavorite;
         if (isFavorite) {
             mFavoriteMenuItem.setChecked(isFavorite);
             mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_on_mtrl_alpha);
-        }else{
+        } else {
             mFavoriteMenuItem.setChecked(isFavorite);
             mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_off_mtrl_alpha);
         }

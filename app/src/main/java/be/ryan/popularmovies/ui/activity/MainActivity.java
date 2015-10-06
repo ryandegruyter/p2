@@ -2,12 +2,14 @@ package be.ryan.popularmovies.ui.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.event.FavoriteEvent;
+import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
@@ -20,12 +22,14 @@ public class MainActivity extends AppCompatActivity{
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
     private static final String TAG = "MainActivity";
     public String TAG_MOVIE_DETAIL_FRAGMENT = "detail_movie";
-
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init tablet layout
@@ -39,8 +43,11 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
+    public void onEvent(PageSelectedEvent pageSelectedEvent) {
+        mToolbar.setTitle(pageSelectedEvent.pageTitle);
+    }
     /**
-     * Called when a user clicks on a favorite button so he can add or remove a movie from its favorites
+     * Called when a user clicks on a favorite button
      *
      * @param favoriteEvent
      */
@@ -62,11 +69,15 @@ public class MainActivity extends AppCompatActivity{
             );
         }
     }
+
     /**
      * Called when a user clicks a movie poster from the list
+     *
      * @param movieEvent PopularMovieEvent
      */
     public void onEvent(PopularMovieEvent movieEvent) {
+        mToolbar.setTitle(movieEvent.mMovie.getOriginal_title());
+
         int containerViewToReplaceId;
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init
@@ -79,7 +90,7 @@ public class MainActivity extends AppCompatActivity{
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(containerViewToReplaceId, DetailMovieFragment.newInstance(movieEvent.mMovie), TAG_MOVIE_DETAIL_FRAGMENT)
+                .replace(containerViewToReplaceId, DetailMovieFragment.newInstance(movieEvent.mMovie, movieEvent.mIsFav), TAG_MOVIE_DETAIL_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
     }

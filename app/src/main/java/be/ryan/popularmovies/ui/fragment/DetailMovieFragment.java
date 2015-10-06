@@ -9,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -22,15 +24,18 @@ import java.text.ParseException;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
+import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.util.Utility;
 import be.ryan.popularmovies.util.DbUtil;
+import de.greenrobot.event.EventBus;
 
 public class DetailMovieFragment extends android.support.v4.app.Fragment {
 
     private static final String ARG_MOVIE = "movie";
     private static final String TAG = "DetailMovieFragment";
+    private static final String ARG_IS_FAVORITE = "is_fav";
 
     private TmdbMovie mMovie;
     private ImageView mBackdropView;
@@ -39,7 +44,7 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     private RatingBar mVoteAverageView;
     private TextView mSynopsisView;
     private RatingBar mRatingBar;
-    private Button mFavButton;
+    private ToggleButton mFavButton;
 
     public static DetailMovieFragment newInstance(TmdbMovie tmdbMovie) {
         DetailMovieFragment fragment = new DetailMovieFragment();
@@ -48,6 +53,17 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+    public static DetailMovieFragment newInstance(TmdbMovie tmdbMovie, boolean isFavorite) {
+        DetailMovieFragment fragment = new DetailMovieFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(ARG_MOVIE, Parcels.wrap(tmdbMovie));
+        args.putBoolean(ARG_IS_FAVORITE, isFavorite);
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 
     public DetailMovieFragment() {
         // Required empty public constructor
@@ -88,24 +104,15 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
         mRatingBar = (RatingBar) view.findViewById(R.id.vote_average);
         mRatingBar.setRating((float) mMovie.getVoteAverage()/2);
 
-        mFavButton = (Button) view.findViewById(R.id.btnFav);
-        mFavButton.setOnClickListener(new View.OnClickListener() {
+        mFavButton = (ToggleButton) view.findViewById(R.id.btnFav);
+        boolean isFavorite = getArguments().getBoolean(ARG_IS_FAVORITE);
+        if (isFavorite) {
+            mFavButton.setChecked(true);
+        }
+        mFavButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                Parcelable parcelable = getArguments().getParcelable(ARG_MOVIE);
-                TmdbMovie movie = Parcels.unwrap(parcelable);
-                DbUtil.getTmdbMovieContentValues(movie);
-
-                Cursor query = getActivity().getContentResolver().query(PopularMoviesContract.MovieEntry.CONTENT_URI,
-                        new String[]{MovieColumns.MOVIE_ID},
-                        "id = ?",
-                        new String[]{String.valueOf(movie.getId())},
-                        null, null);
-                if (query.getCount() > 0) {
-                    getActivity().getContentResolver().delete(PopularMoviesContract.MovieEntry.CONTENT_URI, "id = ?", new String[]{String.valueOf(movie.getId())});
-                }else {
-                    getActivity().getContentResolver().insert(PopularMoviesContract.MovieEntry.CONTENT_URI, DbUtil.getTmdbMovieContentValues(movie));
-                }
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                EventBus.getDefault().post(new FavoriteEvent(mMovie.getId(), !isChecked));
             }
         });
         return view;

@@ -9,11 +9,13 @@ import android.view.ViewGroup;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.MovieListType;
+import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.ui.adapter.TmdbPagerAdapter;
 import be.ryan.popularmovies.ui.view.SlidingTabLayout;
+import de.greenrobot.event.EventBus;
 
 
-public class MovieListPagerFragment extends Fragment{
+public class MovieListPagerFragment extends Fragment implements ViewPager.OnPageChangeListener {
 
     private static final String TAG = "MovieListPagerFragment";
 
@@ -22,11 +24,6 @@ public class MovieListPagerFragment extends Fragment{
 
     public MovieListPagerFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
     }
 
     @Override
@@ -48,8 +45,30 @@ public class MovieListPagerFragment extends Fragment{
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
+        mSlidingTabLayout.setOnPageChangeListener(this);
 
+//        when the pager is created onpageselected is not called for the first item
+        mViewPager.post(new Runnable() {
+            @Override
+            public void run() {
+                onPageSelected(mViewPager.getCurrentItem());
+            }
+        });
         return view;
     }
 
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        EventBus.getDefault().post(new PageSelectedEvent(mViewPager.getAdapter().getPageTitle(position)));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
 }

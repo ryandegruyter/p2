@@ -10,7 +10,7 @@ android {
         applicationId "be.ryan.popularmovies"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
         buildConfigField "String", "TMDB_API_KEY", properties["tmdb.api.key"]
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"

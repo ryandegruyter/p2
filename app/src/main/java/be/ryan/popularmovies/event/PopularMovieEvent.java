@@ -7,8 +7,10 @@ import be.ryan.popularmovies.domain.TmdbMovie;
  */
 public class PopularMovieEvent {
     public final TmdbMovie mMovie;
+    public final boolean mIsFav;
 
-    public PopularMovieEvent(TmdbMovie movie) {
+    public PopularMovieEvent(TmdbMovie movie, boolean isFavorite) {
         this.mMovie= movie;
+        mIsFav = isFavorite;
     }
 }
