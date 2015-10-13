@@ -89,11 +89,7 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
         mTitleView.setText(mMovie.getTitle());
 
         mReleaseDateView = (TextView) view.findViewById(R.id.release_date);
-        try {
-            mReleaseDateView.setText(Utility.convertToMovieDate(mMovie.getReleaseDate()));
-        } catch (ParseException e) {
-            mReleaseDateView.setText(mMovie.getReleaseDate());
-        }
+        mReleaseDateView.setText(Utility.convertToMovieDate(mMovie.getReleaseDate()));
 
         mVoteAverageView = (RatingBar) view.findViewById(R.id.vote_average);
         mVoteAverageView.setRating((float) mMovie.getVoteAverage());

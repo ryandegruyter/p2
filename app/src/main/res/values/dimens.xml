@@ -8,6 +8,7 @@
     <dimen name="primary_font_size_list">16sp</dimen>
     <dimen name="secondary_font_size_list">12sp</dimen>
     <dimen name="grid_list_padding_4">4dp</dimen>
+    <dimen name="grid_list_padding_8">8dp</dimen>
     <dimen name="grid_list_padding_1">1dp</dimen>
 
     <dimen name="movie_detail_backdrop_height">216dp</dimen>

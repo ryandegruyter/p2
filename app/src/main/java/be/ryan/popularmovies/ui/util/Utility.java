@@ -15,11 +15,17 @@ public class Utility {
         return context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
-    public static String convertToMovieDate(String dateString) throws ParseException {
+    public static String convertToMovieDate(String dateString) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        final Date date = simpleDateFormat.parse(dateString);
-
-        simpleDateFormat = new SimpleDateFormat("MMMM yyyy");
-        return simpleDateFormat.format(date);
+        final Date date;
+        try {
+            date = simpleDateFormat.parse(dateString);
+            simpleDateFormat = new SimpleDateFormat("MMMM yyyy");
+            return simpleDateFormat.format(date);
+        } catch (ParseException e) {
+            return dateString;
+        }
     }
+
+
 }

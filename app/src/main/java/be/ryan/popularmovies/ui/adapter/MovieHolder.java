@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -17,6 +18,7 @@ import be.ryan.popularmovies.event.FetchReviewsEvent;
 import be.ryan.popularmovies.event.FetchTrailerEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
+import be.ryan.popularmovies.ui.util.Utility;
 import de.greenrobot.event.EventBus;
 
 /**
@@ -27,6 +29,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
     MenuItem mFavoriteMenuItem;
     TextView mMovieTitle;
     TextView mMovieReleaseDate;
+    ToggleButton mButtonFav;
     RatingBar mRatingBar;
     ImageView mPosterView;
     Toolbar mMediaToolbar;
@@ -44,6 +47,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
         mMovieTitle = (TextView) itemView.findViewById(R.id.toolbar_movie_title);
         mMovieReleaseDate = (TextView) itemView.findViewById(R.id.toolbar_movie_release_date);
         mRatingBar = (RatingBar) itemView.findViewById(R.id.toolbar_vote_average);
+        mButtonFav = (ToggleButton) itemView.findViewById(R.id.btnFav);
 
         mPosterView = (ImageView) itemView.findViewById(R.id.poster);
         mPosterView.setOnClickListener(this);
@@ -64,7 +68,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
                 .load(uri)
                 .into(mPosterView);
         mRatingBar.setRating((float) mTmdbMovie.getVoteAverage() / 2);
-        mMovieReleaseDate.setText(mTmdbMovie.getReleaseDate());
+        mMovieReleaseDate.setText(Utility.convertToMovieDate(mTmdbMovie.getReleaseDate()));
         mMovieTitle.setText(mTmdbMovie.getOriginal_title());
 
     }
@@ -90,10 +94,10 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
         this.isFavorite = isFavorite;
         if (isFavorite) {
             mFavoriteMenuItem.setChecked(isFavorite);
-            mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_on_mtrl_alpha);
+            mFavoriteMenuItem.setIcon(android.support.v7.appcompat.R.drawable.abc_btn_radio_to_on_mtrl_015);
         } else {
             mFavoriteMenuItem.setChecked(isFavorite);
-            mFavoriteMenuItem.setIcon(android.support.design.R.drawable.abc_btn_rating_star_off_mtrl_alpha);
+            mFavoriteMenuItem.setIcon(android.support.v7.appcompat.R.drawable.abc_btn_radio_to_on_mtrl_000);
         }
     }
 }

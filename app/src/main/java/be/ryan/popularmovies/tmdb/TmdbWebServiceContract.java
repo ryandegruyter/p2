@@ -20,7 +20,7 @@ public class TmdbWebServiceContract {
     public static String IMG_SIZE_154 = "w154";
     public static String IMG_SIZE_185 = "w185";
     public static String IMG_SIZE_342 = "w342";
-    public static String BASE_POSTER_IMG_URL = BASE_IMG_URL + IMG_SIZE_185;
+    public static String BASE_POSTER_IMG_URL = BASE_IMG_URL + IMG_SIZE_342;
 
     public static String SECURE_BASE_URL = "https://image.tmdb.org/t/p/";
 }

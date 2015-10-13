@@ -63,7 +63,7 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
         View view = inflater.inflate(R.layout.fragment_movie_list, container, false);
         mMovieListRecyclerView = (RecyclerView) view.findViewById(R.id.popular_movies_recycler_view);
         mMovieListRecyclerView.setHasFixedSize(true);
-        mPopularMoviesLayoutManager = new GridLayoutManager(getActivity(),3);
+        mPopularMoviesLayoutManager = new GridLayoutManager(getActivity(),2);
         mMovieListRecyclerView.setLayoutManager(mPopularMoviesLayoutManager);
         mMovieListRecyclerView.setAdapter(new MoviesCursorAdapter(getContext()));
         return view;
