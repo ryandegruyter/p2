@@ -3,9 +3,10 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="grid_footer_height">68dp</dimen>
-    <dimen name="grid_text_padding">16dp</dimen>
-    <dimen name="grid_font_size">16sp</dimen>
-    <dimen name="grid_font_size_second_line">12sp</dimen>
+    <dimen name="text_padding">16dp</dimen>
+    <dimen name="text_padding_toolbar">8dp</dimen>
+    <dimen name="primary_font_size_list">16sp</dimen>
+    <dimen name="secondary_font_size_list">12sp</dimen>
     <dimen name="grid_list_padding_4">4dp</dimen>
     <dimen name="grid_list_padding_1">1dp</dimen>
 

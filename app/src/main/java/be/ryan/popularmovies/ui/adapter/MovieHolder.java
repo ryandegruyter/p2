@@ -5,6 +5,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RatingBar;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -23,8 +25,11 @@ import de.greenrobot.event.EventBus;
 public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClickListener, Toolbar.OnMenuItemClickListener {
 
     MenuItem mFavoriteMenuItem;
-    ImageView mPosterView = null;
-    Toolbar mMediaToolbar = null;
+    TextView mMovieTitle;
+    TextView mMovieReleaseDate;
+    RatingBar mRatingBar;
+    ImageView mPosterView;
+    Toolbar mMediaToolbar;
     TmdbMovie mTmdbMovie;
     private boolean isFavorite;
 
@@ -36,6 +41,10 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
 
     public MovieHolder(View itemView) {
         super(itemView);
+        mMovieTitle = (TextView) itemView.findViewById(R.id.toolbar_movie_title);
+        mMovieReleaseDate = (TextView) itemView.findViewById(R.id.toolbar_movie_release_date);
+        mRatingBar = (RatingBar) itemView.findViewById(R.id.toolbar_vote_average);
+
         mPosterView = (ImageView) itemView.findViewById(R.id.poster);
         mPosterView.setOnClickListener(this);
         mMediaToolbar = (Toolbar) itemView.findViewById(R.id.media_toolbar);
@@ -53,9 +62,11 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
         mTmdbMovie = movie;
         Picasso.with(mPosterView.getContext())
                 .load(uri)
-                .fit()
-                .centerCrop()
                 .into(mPosterView);
+        mRatingBar.setRating((float) mTmdbMovie.getVoteAverage() / 2);
+        mMovieReleaseDate.setText(mTmdbMovie.getReleaseDate());
+        mMovieTitle.setText(mTmdbMovie.getOriginal_title());
+
     }
 
     @Override
