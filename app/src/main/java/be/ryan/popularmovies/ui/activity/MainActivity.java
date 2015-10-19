@@ -1,8 +1,12 @@
 package be.ryan.popularmovies.ui.activity;
 
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
@@ -17,20 +21,19 @@ import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import be.ryan.popularmovies.util.ContentUtils;
 import de.greenrobot.event.EventBus;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
     private static final String TAG = "MainActivity";
     public String TAG_MOVIE_DETAIL_FRAGMENT = "detail_movie";
-    private Toolbar mToolbar;
+    private ToolbarDelegate mToolbarDelegate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbarDelegate = new ToolbarDelegate(toolbar);
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init tablet layout
         }
@@ -44,7 +47,8 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void onEvent(PageSelectedEvent pageSelectedEvent) {
-        mToolbar.setTitle(pageSelectedEvent.pageTitle);
+
+        mToolbar.setSubtitle(pageSelectedEvent.pageTitle);
     }
     /**
      * Called when a user clicks on a favorite button
@@ -76,8 +80,9 @@ public class MainActivity extends AppCompatActivity{
      * @param movieEvent PopularMovieEvent
      */
     public void onEvent(PopularMovieEvent movieEvent) {
-        mToolbar.setTitle(movieEvent.mMovie.getOriginal_title());
-
+        mToolbar.setSubtitle(movieEvent.mMovie.getOriginal_title());
+        mToolbar.setNavigationIcon(android.support.design.R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        
         int containerViewToReplaceId;
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init

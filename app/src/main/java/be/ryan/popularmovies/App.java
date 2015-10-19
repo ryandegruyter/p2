@@ -14,7 +14,7 @@ import be.ryan.popularmovies.util.PrefUtil;
  * Created by ryan on 23/09/15.
  */
 public class App extends Application{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     public static boolean runsOnTablet = false;
 
