@@ -47,8 +47,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onEvent(PageSelectedEvent pageSelectedEvent) {
-
-        mToolbar.setSubtitle(pageSelectedEvent.pageTitle);
+        mToolbarDelegate.mToolbar.setSubtitle(pageSelectedEvent.pageTitle);
     }
     /**
      * Called when a user clicks on a favorite button
@@ -80,9 +79,6 @@ public class MainActivity extends AppCompatActivity {
      * @param movieEvent PopularMovieEvent
      */
     public void onEvent(PopularMovieEvent movieEvent) {
-        mToolbar.setSubtitle(movieEvent.mMovie.getOriginal_title());
-        mToolbar.setNavigationIcon(android.support.design.R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-        
         int containerViewToReplaceId;
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init
