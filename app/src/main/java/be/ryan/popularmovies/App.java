@@ -3,11 +3,13 @@ package be.ryan.popularmovies;
 import android.app.Application;
 import android.content.Context;
 import android.os.SystemClock;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.facebook.stetho.Stetho;
 
 import be.ryan.popularmovies.db.PopMovSqlHelper;
+import be.ryan.popularmovies.ui.activity.ToolbarDelegate;
 import be.ryan.popularmovies.util.PrefUtil;
 
 /**

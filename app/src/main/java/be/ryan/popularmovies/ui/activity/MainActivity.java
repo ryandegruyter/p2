@@ -12,6 +12,7 @@ import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.db.MovieColumns;
+import be.ryan.popularmovies.event.BackPressedEvent;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
@@ -32,8 +33,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbarDelegate = new ToolbarDelegate(toolbar);
+        mToolbarDelegate = ToolbarDelegate.getMainToolbarDelegate(toolbar);
+
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init tablet layout
         }
@@ -46,9 +49,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Called when a tab is selected
+     *
+     * @param pageSelectedEvent
+     */
     public void onEvent(PageSelectedEvent pageSelectedEvent) {
-        mToolbarDelegate.mToolbar.setSubtitle(pageSelectedEvent.pageTitle);
+        mToolbarDelegate.setSubtitle(pageSelectedEvent.pageTitle);
     }
+
     /**
      * Called when a user clicks on a favorite button
      *
@@ -94,6 +103,20 @@ public class MainActivity extends AppCompatActivity {
                 .replace(containerViewToReplaceId, DetailMovieFragment.newInstance(movieEvent.mMovie, movieEvent.mIsFav), TAG_MOVIE_DETAIL_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
+
+        mToolbarDelegate.setMovieDetailViewIsActive(true);
+        mToolbarDelegate.syncState();
+    }
+
+    /**
+     * called when a user navigates back from a detailmovieview
+     *
+     * @param backPressedEvent
+     */
+    public void onEvent(BackPressedEvent backPressedEvent) {
+        mToolbarDelegate.setMovieDetailViewIsActive(false);
+        mToolbarDelegate.syncState();
+        onBackPressed();
     }
 
     @Override
