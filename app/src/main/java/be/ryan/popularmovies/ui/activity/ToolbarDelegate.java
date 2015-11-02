@@ -4,9 +4,13 @@ import android.content.Context;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntegerRes;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
+import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.event.BackPressedEvent;
+import be.ryan.popularmovies.event.SyncEvent;
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import de.greenrobot.event.EventBus;
 
 /**
@@ -28,6 +32,7 @@ public class ToolbarDelegate implements View.OnClickListener {
 
     public ToolbarDelegate(Toolbar toolbar) {
         mToolbar = toolbar;
+        mToolbar.inflateMenu(R.menu.main);
         toolbar.setNavigationOnClickListener(this);
     }
 

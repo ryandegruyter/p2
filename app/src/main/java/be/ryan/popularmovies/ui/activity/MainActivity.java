@@ -16,7 +16,9 @@ import be.ryan.popularmovies.event.BackPressedEvent;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
+import be.ryan.popularmovies.event.SyncEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
+import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import be.ryan.popularmovies.util.ContentUtils;
@@ -56,6 +58,10 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onEvent(PageSelectedEvent pageSelectedEvent) {
         mToolbarDelegate.setSubtitle(pageSelectedEvent.pageTitle);
+    }
+
+    public void onEvent(SyncEvent syncEvent) {
+        PopMovSyncAdapter.syncImmediately(this, null);
     }
 
     /**

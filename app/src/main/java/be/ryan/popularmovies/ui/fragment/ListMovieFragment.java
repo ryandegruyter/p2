@@ -19,6 +19,7 @@ import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.adapter.MoviesCursorAdapter;
 import be.ryan.popularmovies.util.PrefUtil;
+import be.ryan.popularmovies.util.Sync;
 
 /**
  * Created by ryan on 22/09/15.
@@ -44,14 +45,6 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         String orderType = getArguments().getString(KEY_MOVIE_LIST_ORDER_TYPE);
-        if (PrefUtil.isFirstRun(getContext(), orderType)) {
-            Bundle syncInfo = new Bundle();
-
-            syncInfo.putInt(PopMovSyncAdapter.SYNC_TYPE, PopMovSyncAdapter.SYNC_MOVIE_LIST);
-            syncInfo.putString(PopMovSyncAdapter.KEY_LIST_PATH_NAME, orderType);
-            PopMovSyncAdapter.syncImmediately(getContext(), syncInfo);
-            PrefUtil.setFirstRunFinished(getContext(), orderType);
-        }
 
         getLoaderManager().initLoader(1, null, this);
         super.onActivityCreated(savedInstanceState);
@@ -77,6 +70,11 @@ public class ListMovieFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        //if data failed to load or database is empty, try and resync the data
+        if (data.getCount() == 0) {
+            String orderType = getArguments().getString(KEY_MOVIE_LIST_ORDER_TYPE);
+            Sync.syncMovieList(orderType, getContext());
+        }
         ((MoviesCursorAdapter) mMovieListRecyclerView.getAdapter()).swapCursor(data);
     }
 
