@@ -1,25 +1,46 @@
 package be.ryan.popularmovies.ui.activity;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.FavoriteColumns;
+import be.ryan.popularmovies.domain.TmdbVideoReviewsResponse;
+import be.ryan.popularmovies.domain.TmdbVideosResponse;
 import be.ryan.popularmovies.event.BackPressedEvent;
 import be.ryan.popularmovies.event.FavoriteEvent;
+import be.ryan.popularmovies.event.FetchReviewsEvent;
+import be.ryan.popularmovies.event.FetchTrailerEvent;
 import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
+import be.ryan.popularmovies.tmdb.TmdbRestClient;
+import be.ryan.popularmovies.ui.dialog.ReviewsDialog;
+import be.ryan.popularmovies.ui.dialog.TrailerDialog;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import be.ryan.popularmovies.util.ContentUtils;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG_REVIEWS_FRAGMENT = "vers";
+    private static final String TAG_TRAILERS_MOVIE = "trailers";
+
+    @Bind(R.id.fragment_list_movies_container)
+    FrameLayout containerView;
 
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
     private static final String TAG = "MainActivity";
@@ -42,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -131,6 +152,44 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onEvent(BackPressedEvent backPressedEvent) {
         onBackPressed();
+    }
+
+    public void onEvent(FetchTrailerEvent fetchTrailerEvent) {
+        TmdbRestClient.getInstance().getService().listYoutubeTrailers(fetchTrailerEvent.movieId, new Callback<TmdbVideosResponse>() {
+            @Override
+            public void success(TmdbVideosResponse tmdbVideosResponse, Response response) {
+                if (tmdbVideosResponse.getVideoList().size() > 0) {
+                    TrailerDialog.newInstance(tmdbVideosResponse).show(getSupportFragmentManager(),TAG_TRAILERS_MOVIE);
+                } else {
+                    Snackbar.make(containerView, "No trailers, sorry!", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Snackbar.make(containerView, "You need an internet connection to fetch movies", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void onEvent(FetchReviewsEvent fetchReviewsEvent) {
+        TmdbRestClient.getInstance().getService().listMovieReviews(fetchReviewsEvent.movieId, new Callback<TmdbVideoReviewsResponse>() {
+            @Override
+            public void success(TmdbVideoReviewsResponse tmdbVideoReviewsResponse, Response response) {
+                if (tmdbVideoReviewsResponse.getTotalResults()>0) {
+                    // TODO: 02/11/2015 show dialogbox with reviews about the movie
+                    ReviewsDialog.newInstance(tmdbVideoReviewsResponse).show(getSupportFragmentManager(),TAG_REVIEWS_FRAGMENT);
+                }else {
+                    Snackbar.make(containerView, "Sorry! No Reviews", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Snackbar.make(containerView, "You need an internet connection to fetch reviews", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
