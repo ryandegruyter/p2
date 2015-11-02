@@ -1,24 +1,19 @@
 package be.ryan.popularmovies.ui.activity;
 
-import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
+import android.util.Log;
+import android.view.MenuItem;
 
 import be.ryan.popularmovies.App;
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.FavoriteColumns;
-import be.ryan.popularmovies.db.MovieColumns;
 import be.ryan.popularmovies.event.BackPressedEvent;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.PopularMovieEvent;
-import be.ryan.popularmovies.event.SyncEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
-import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
 import be.ryan.popularmovies.util.ContentUtils;
@@ -28,8 +23,20 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_MOVIE_LIST_PAGER_FRAGMENT = "fragment_movie_pager";
     private static final String TAG = "MainActivity";
+    private static final String KEY_ACTIONBAR_SUBTITLE = "actionbar_subtitle";
     public String TAG_MOVIE_DETAIL_FRAGMENT = "detail_movie";
-    private ToolbarDelegate mToolbarDelegate;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                onBackPressed();
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        mToolbarDelegate = ToolbarDelegate.getMainToolbarDelegate(toolbar);
+        setSupportActionBar(toolbar);
 
         if (App.runsOnTablet) {
             // TODO: 26/09/15 init tablet layout
@@ -48,6 +55,13 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .replace(R.id.fragment_list_movies_container, new MovieListPagerFragment(), TAG_MOVIE_LIST_PAGER_FRAGMENT)
                     .commit();
+        }else {
+            //on screen rotate the displayhomeasup is set to false, have to set it to true again but only if the detail view is active
+            if (getSupportFragmentManager().findFragmentByTag(TAG_MOVIE_DETAIL_FRAGMENT) != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+
+            getSupportActionBar().setSubtitle(savedInstanceState.getCharSequence(KEY_ACTIONBAR_SUBTITLE));
         }
     }
 
@@ -57,11 +71,7 @@ public class MainActivity extends AppCompatActivity {
      * @param pageSelectedEvent
      */
     public void onEvent(PageSelectedEvent pageSelectedEvent) {
-        mToolbarDelegate.setSubtitle(pageSelectedEvent.pageTitle);
-    }
-
-    public void onEvent(SyncEvent syncEvent) {
-        PopMovSyncAdapter.syncImmediately(this, null);
+        getSupportActionBar().setSubtitle(pageSelectedEvent.pageTitle);
     }
 
     /**
@@ -110,8 +120,8 @@ public class MainActivity extends AppCompatActivity {
                 .addToBackStack(null)
                 .commit();
 
-        mToolbarDelegate.setMovieDetailViewIsActive(true);
-        mToolbarDelegate.syncState();
+        getSupportActionBar().setSubtitle(movieEvent.mMovie.getOriginal_title());
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
@@ -120,8 +130,6 @@ public class MainActivity extends AppCompatActivity {
      * @param backPressedEvent
      */
     public void onEvent(BackPressedEvent backPressedEvent) {
-        mToolbarDelegate.setMovieDetailViewIsActive(false);
-        mToolbarDelegate.syncState();
         onBackPressed();
     }
 
@@ -131,10 +139,17 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putCharSequence(KEY_ACTIONBAR_SUBTITLE, getSupportActionBar().getSubtitle());
+        super.onSaveInstanceState(outState);
+    }
+
+
 }

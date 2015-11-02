@@ -18,45 +18,33 @@ import de.greenrobot.event.EventBus;
  */
 public class ToolbarDelegate implements View.OnClickListener {
 
-    boolean isMovieDetailViewActive;
     @DrawableRes int mToolbarNavigationIcon = android.support.v7.appcompat.R.drawable.abc_ic_ab_back_mtrl_am_alpha;;
     final Toolbar mToolbar;
+    boolean detailViewIsActive;
     static ToolbarDelegate instance;
-
-    public static ToolbarDelegate getMainToolbarDelegate(Toolbar toolbar) {
-        if (instance == null) {
-            instance = new ToolbarDelegate(toolbar);
-        }
-        return instance;
-    }
 
     public ToolbarDelegate(Toolbar toolbar) {
         mToolbar = toolbar;
-        mToolbar.inflateMenu(R.menu.main);
         toolbar.setNavigationOnClickListener(this);
     }
 
-    public void syncState() {
-        if (isMovieDetailViewActive) {
-            mToolbar.setNavigationIcon(mToolbarNavigationIcon);
-        }else {
-            mToolbar.setNavigationIcon(null);
-        }
+    public void syncState(boolean movieDetailViewIsActive) {
+        this.detailViewIsActive = movieDetailViewIsActive;
+        syncState();
     }
 
-    /**
-     * Flag to check if the movie detail view is active, if true show a back icon or else
-     * dont show any any navigation icon.
-     *
-     * @param movieDetailViewIsActive
-     */
-    public void setMovieDetailViewIsActive(boolean movieDetailViewIsActive) {
-        this.isMovieDetailViewActive = movieDetailViewIsActive;
+    public void syncState(){
+        if (this.detailViewIsActive) {
+            mToolbar.setNavigationIcon(mToolbarNavigationIcon);
+        } else {
+            mToolbar.setNavigationIcon(null);
+        }
     }
 
     public void setSubtitle(CharSequence subtitle) {
         mToolbar.setSubtitle(subtitle);
     }
+
 
     @Override
     public void onClick(View v) {
