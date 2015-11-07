@@ -1,5 +1,6 @@
 package be.ryan.popularmovies.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Called when a user clicks on a favorite button
+     * Called when a user toggles the favorite button
      *
      * @param favoriteEvent
      */
@@ -125,24 +126,11 @@ public class MainActivity extends AppCompatActivity {
      * @param movieEvent PopularMovieEvent
      */
     public void onEvent(PopularMovieEvent movieEvent) {
-        int containerViewToReplaceId;
         if (App.runsOnTablet) {
-            // TODO: 26/09/15 init
-//            containerViewToReplaceId = R.id.fragment_detail;
+            // TODO: 26/09/15 init tablet layout for detail view
         } else {
-//            containerViewToReplaceId = R.id.fragment_list_movies_container;
+            new Intent(this, DetailActivity.class);
         }
-
-        containerViewToReplaceId = R.id.fragment_list_movies_container;
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(containerViewToReplaceId, DetailMovieFragment.newInstance(movieEvent.mMovie, movieEvent.mIsFav), TAG_MOVIE_DETAIL_FRAGMENT)
-                .addToBackStack(null)
-                .commit();
-
-        getSupportActionBar().setSubtitle(movieEvent.mMovie.getOriginal_title());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     /**
