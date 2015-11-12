@@ -1,63 +1,100 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <ImageView
         android:id="@+id/movie_detail_backdrop"
+        android:layout_width="wrap_content"
+        android:layout_height="240dp"
+        android:scaleType="centerCrop"
+        tools:src="@drawable/movie_backdrop_sample_w780" />
+
+    <Space
+        android:id="@+id/header_spacer"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:layout_below="@id/toolbar"
+        android:layout_centerHorizontal="true"
+        tools:text="Play Trailer" />
+
+    <View
         android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop" />
+        android:layout_height="240dp"
+        android:alpha="0.30"
+        android:background="@android:color/black" />
 
-    <ScrollView
+    <ImageView
+        android:id="@+id/movie_detail_poster"
+        android:layout_width="144dp"
+        android:layout_height="192dp"
+        android:layout_below="@id/header_spacer"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerInside"
+        tools:src="@drawable/movie_sample_sample_w780" />
+
+    <TextView
+        android:paddingLeft="8dp"
+        android:id="@+id/movie_title"
+        android:singleLine="true"
         android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="2">
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/movie_detail_poster"
+        android:layout_toRightOf="@id/movie_detail_poster"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@android:color/white"
+        android:text="Fight Club" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin">
-            <ToggleButton
-                android:layout_alignParentRight="true"
-                android:text="fav"
-                android:textOff="@string/action_favorite"
-                android:textOn="@string/action_unfav"
-                android:id="@+id/btnFav"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/movie_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/movie_detail_title_font_size" />
+    <RatingBar
+        android:layout_marginLeft="8dp"
+        android:id="@+id/vote_average"
+        style="@android:style/Widget.DeviceDefault.RatingBar.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/movie_title"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_toRightOf="@id/movie_detail_poster"
+        android:isIndicator="true"
+        android:numStars="5"
+        android:stepSize="0.01" />
 
-            <TextView
-                android:id="@+id/release_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/movie_title" />
+    <TextView
+        android:paddingLeft="8dp"
+        android:id="@+id/release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vote_average"
+        android:layout_toRightOf="@id/movie_detail_poster"
+        android:textSize="@dimen/secondary_font_size_list"
+        android:textColor="@android:color/white"
+        tools:text="May 2017" />
 
-            <RatingBar
-                android:id="@+id/vote_average"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/release_date"
-                android:layout_marginTop="@dimen/activity_vertical_margin"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:stepSize="0.01" />
+    <ToggleButton
+        android:id="@+id/btnFav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/movie_detail_poster"
+        android:layout_alignParentRight="true"
+        android:textOn="@string/action_unfav"
+        android:textOff="@string/action_favorite"/>
 
-            <TextView
-                android:id="@+id/synopsis"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/vote_average" />
-        </RelativeLayout>
-    </ScrollView>
-</LinearLayout>
+    <TextView
+        android:padding="16dp"
+        tools:text="Attribute set on the root element of a layout to configure the menus to be shown in the Action Bar. Android Studio tries to figure out which menus to use in the ActionBar by looking at the onCreateOptionsMenu() method in the activity linked to the layout (by tools:context). This allows you to override that search and explicitly state which menus to show. The value is a comma separated list of ids (without @id/ or any such prefix). You can also use the file names of the menu xml without the .xml extension. Requires Studio 0.8.0 or later."
+        android:layout_below="@id/movie_detail_poster"
+        android:id="@+id/synopsis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</RelativeLayout>

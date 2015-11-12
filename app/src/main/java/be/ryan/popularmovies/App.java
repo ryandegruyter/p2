@@ -11,6 +11,7 @@ import com.facebook.stetho.Stetho;
 import be.ryan.popularmovies.db.PopMovSqlHelper;
 import be.ryan.popularmovies.ui.activity.ToolbarDelegate;
 import be.ryan.popularmovies.util.PrefUtil;
+import timber.log.Timber;
 
 /**
  * Created by ryan on 23/09/15.
@@ -18,29 +19,18 @@ import be.ryan.popularmovies.util.PrefUtil;
 public class App extends Application{
     public static final boolean DEBUG = true;
 
-    public static boolean runsOnTablet;
-
     private static final String TAG = "App";
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        final int lScreenWidthDp = getResources().getConfiguration().screenWidthDp;
-        if (lScreenWidthDp > 600) {
-            runsOnTablet = true;
-        }else {
-            runsOnTablet = false;
-        }
+        Timber.plant(new Timber.DebugTree());
 
         if (DEBUG) {
             deleteDatabase(PopMovSqlHelper.DB_NAME);
             PrefUtil.clear(this);
-
-            long startTime = SystemClock.elapsedRealtime();
             initializeStetho(this);
-            long elapsed = SystemClock.elapsedRealtime() - startTime;
-            Log.i(TAG, "Stetho initialized in " + elapsed + " ms");
         }
     }
 

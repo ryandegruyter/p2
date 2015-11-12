@@ -3,6 +3,7 @@ package be.ryan.popularmovies.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.internal.widget.ViewUtils;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +28,7 @@ import be.ryan.popularmovies.ui.dialog.ReviewsDialog;
 import be.ryan.popularmovies.ui.dialog.TrailerDialog;
 import be.ryan.popularmovies.ui.fragment.DetailMovieFragment;
 import be.ryan.popularmovies.ui.fragment.MovieListPagerFragment;
+import be.ryan.popularmovies.util.Compatibility;
 import be.ryan.popularmovies.util.ContentUtils;
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        if (App.runsOnTablet) {
+        if (Compatibility.isTablet(this)) {
             // TODO: 26/09/15 init tablet layout
         }
 
@@ -126,10 +128,19 @@ public class MainActivity extends AppCompatActivity {
      * @param movieEvent PopularMovieEvent
      */
     public void onEvent(PopularMovieEvent movieEvent) {
-        if (App.runsOnTablet) {
+        if (Compatibility.isTablet(this)) {
             // TODO: 26/09/15 init tablet layout for detail view
         } else {
-            new Intent(this, DetailActivity.class);
+//            Intent startDetailActivityIntent = new Intent(this, DetailActivity.class);
+
+//            ActivityCompat.startActivity(this, );
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_list_movies_container, DetailMovieFragment.newInstance(movieEvent.mMovie, movieEvent.mIsFav), TAG_MOVIE_DETAIL_FRAGMENT)
+                    .addToBackStack(null)
+                    .commit();
+
         }
     }
 
