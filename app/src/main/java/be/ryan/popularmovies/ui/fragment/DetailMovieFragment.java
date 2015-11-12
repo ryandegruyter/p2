@@ -97,7 +97,7 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
         Picasso.with(getContext()).load(getPosterImgUri()).into(mPosterImageView);
         Picasso.with(getContext()).load(getBackDropImgUri()).into(mBackdropView);
 
-        mTitleView.setText(mMovie.getTitle());
+        mTitleView.setText(mMovie.getOriginal_title());
         mReleaseDateView.setText(Utility.convertToMovieDate(mMovie.getReleaseDate()));
         mSynopsisView.setText(mMovie.getOverView());
         mRatingBar.setRating((float) mMovie.getVoteAverage()/2);
