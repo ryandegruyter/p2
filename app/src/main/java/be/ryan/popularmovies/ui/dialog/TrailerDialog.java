@@ -1,6 +1,7 @@
 package be.ryan.popularmovies.ui.dialog;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -36,20 +37,26 @@ public class TrailerDialog extends AppCompatDialogFragment {
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = null;
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        view = inflater.inflate(R.layout.dialog_trailers, container, false);
-
+        View view = layoutInflater.inflate(R.layout.dialog_trailers, null);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_trailers_dialog);
-
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
         TrailerAdapter adapter = new TrailerAdapter(getActivity(), getTrailers());
         mRecyclerView.setAdapter(adapter);
-        return view;
+
+        builder.setView(view)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getDialog().cancel();
+                    }
+                });
+
+        return builder.create();
     }
 
     private TmdbVideosResponse getTrailers() {

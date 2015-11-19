@@ -82,6 +82,7 @@
         tools:text="May 2017" />
 
     <ToggleButton
+        android:layout_marginRight="16dp"
         android:id="@+id/btnFav"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

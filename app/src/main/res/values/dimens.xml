@@ -22,5 +22,6 @@
     <dimen name="tab_height">48dp</dimen>
     <dimen name="padding_bottom_single_line">20dp</dimen>
     <dimen name="tab_font_size_single_line">12sp</dimen>
+    <dimen name="item_offset">4dp</dimen>
 
 </resources>

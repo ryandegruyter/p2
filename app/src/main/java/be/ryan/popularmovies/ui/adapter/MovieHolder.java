@@ -16,7 +16,7 @@ import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.FetchReviewsEvent;
 import be.ryan.popularmovies.event.FetchTrailerEvent;
-import be.ryan.popularmovies.event.PopularMovieEvent;
+import be.ryan.popularmovies.event.MovieSelectedEvent;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.util.Utility;
 import de.greenrobot.event.EventBus;
@@ -38,7 +38,7 @@ public class MovieHolder extends RecyclerView.ViewHolder implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        EventBus.getDefault().post(new PopularMovieEvent(mTmdbMovie, isFavorite));
+        EventBus.getDefault().post(new MovieSelectedEvent(mTmdbMovie, isFavorite));
     }
 
 

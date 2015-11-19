@@ -13,6 +13,8 @@ import be.ryan.popularmovies.event.SyncEvent;
 import be.ryan.popularmovies.sync.PopMovSyncAdapter;
 import de.greenrobot.event.EventBus;
 
+import static be.ryan.popularmovies.event.BackPressedEvent.*;
+
 /**
  * Created by ryan on 16.10.15.
  */
@@ -48,6 +50,6 @@ public class ToolbarDelegate implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        EventBus.getDefault().post(new BackPressedEvent("Toolbar Delegate"));
+        EventBus.getDefault().post(new BackPressedEvent(ACTION_DETAIL_VIEW_EXIT));
     }
 }

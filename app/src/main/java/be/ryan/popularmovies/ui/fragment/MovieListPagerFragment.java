@@ -32,7 +32,7 @@ public class MovieListPagerFragment extends Fragment implements ViewPager.OnPage
         final View view = inflater.inflate(R.layout.fragment_movie_list_pager, container, false);
         mViewPager = (ViewPager) view.findViewById(R.id.viewpager);
         final Fragment[] fragments = {
-                ListMovieFragment.newInstance(getString(R.string.title_favorites), MovieListType.Favorites),
+                ListMovieFragment.newInstanceWithNoProgressBar(getString(R.string.title_favorites), MovieListType.Favorites),
                 ListMovieFragment.newInstance(getString(R.string.title_now_playing) , MovieListType.LATEST),
                 ListMovieFragment.newInstance(getString(R.string.title_popular_movies), MovieListType.POPULAR),
                 ListMovieFragment.newInstance(getString(R.string.title_highest_rated), MovieListType.TOP),

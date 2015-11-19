@@ -1,6 +1,7 @@
 package be.ryan.popularmovies.ui.fragment;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +16,14 @@ import com.squareup.picasso.Picasso;
 import org.parceler.Parcels;
 
 import be.ryan.popularmovies.R;
+import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.event.FavoriteEvent;
+import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
 import be.ryan.popularmovies.ui.util.Utility;
+import be.ryan.popularmovies.util.Compatibility;
+import be.ryan.popularmovies.util.ContentUtils;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
@@ -34,6 +39,8 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.movie_detail_backdrop)
     ImageView mBackdropView;
 
+    //Depending on orientation / device might be null
+    @Nullable
     @Bind(R.id.movie_detail_poster)
     ImageView mPosterImageView;
 
@@ -92,9 +99,12 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_detail_movie, container, false);
-        ButterKnife.bind(this,view);
+        ButterKnife.bind(this, view);
 
-        Picasso.with(getContext()).load(getPosterImgUri()).into(mPosterImageView);
+        if (mPosterImageView != null) {
+            Picasso.with(getContext()).load(getPosterImgUri()).into(mPosterImageView);
+        }
+
         Picasso.with(getContext()).load(getBackDropImgUri()).into(mBackdropView);
 
         mTitleView.setText(mMovie.getOriginal_title());
@@ -123,5 +133,4 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     public String getPosterImgUri() {
         return TmdbWebServiceContract.BASE_POSTER_IMG_URL + mMovie.getPosterImgPath();
     }
-
 }
