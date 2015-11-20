@@ -1,12 +1,12 @@
 package be.ryan.popularmovies.tmdb;
 
-import be.ryan.popularmovies.domain.TmdbMovie;
 import be.ryan.popularmovies.domain.TmdbMoviesPage;
 import be.ryan.popularmovies.domain.TmdbVideoReviewsResponse;
 import be.ryan.popularmovies.domain.TmdbVideosResponse;
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Path;
+import retrofit.http.Query;
 
 /**
  * Created by Ryan on 27/08/2015.
@@ -15,6 +15,9 @@ public interface TmdbService {
 
     @GET("/discover/movies")
     void listMovies(Callback<TmdbMoviesPage> callback);
+
+    @GET("/movie/{id}")
+    void listMovieWithAppend(@Path("id") int movieId, @Query("append_to_response") String append, Callback<TmdbVideoReviewsResponse> callback);
 
     @GET("/movie/{id}/reviews")
     void listMovieReviews(@Path("id") int movieId,Callback<TmdbVideoReviewsResponse> callback);

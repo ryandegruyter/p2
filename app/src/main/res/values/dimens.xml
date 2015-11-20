@@ -30,5 +30,6 @@
     <dimen name="height_movie_detail_poster">192dp</dimen>
     <dimen name="movie_detail_poster_margin">16dp</dimen>
     <dimen name="ratingbar_margin">8dp</dimen>
+    <dimen name="trailers_list_height">144dp</dimen>
 
 </resources>

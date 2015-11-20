@@ -26,4 +26,5 @@
     <string name="title_trailers">Trailers</string>
     <string name="video_key">VideoKey</string>
     <string name="title_reviews">Reviews</string>
+    <string name="action_share_trailer">Share Trailer</string>
 </resources>

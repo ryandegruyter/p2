@@ -2,7 +2,12 @@ package be.ryan.popularmovies.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v7.internal.widget.ListViewCompat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -16,22 +21,27 @@ import com.squareup.picasso.Picasso;
 import org.parceler.Parcels;
 
 import be.ryan.popularmovies.R;
-import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.domain.TmdbMovie;
+import be.ryan.popularmovies.domain.TmdbVideo;
+import be.ryan.popularmovies.domain.TmdbVideoReviewsResponse;
+import be.ryan.popularmovies.domain.TmdbVideosResponse;
 import be.ryan.popularmovies.event.FavoriteEvent;
-import be.ryan.popularmovies.provider.PopularMoviesContract;
+import be.ryan.popularmovies.tmdb.TmdbRestClient;
 import be.ryan.popularmovies.tmdb.TmdbWebServiceContract;
+import be.ryan.popularmovies.ui.adapter.TrailerListAdapter;
+import be.ryan.popularmovies.ui.dialog.ReviewsListAdapter;
 import be.ryan.popularmovies.ui.util.Utility;
-import be.ryan.popularmovies.util.Compatibility;
-import be.ryan.popularmovies.util.ContentUtils;
+import be.ryan.popularmovies.util.IntentUtil;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import de.greenrobot.event.EventBus;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class DetailMovieFragment extends android.support.v4.app.Fragment {
 
     private static final String ARG_MOVIE = "movie";
-    private static final String TAG = "DetailMovieFragment";
     private static final String ARG_IS_FAVORITE = "is_fav";
 
     private TmdbMovie mMovie;
@@ -59,15 +69,31 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     @Bind(R.id.btnFav)
     ToggleButton mFavButton;
 
-    public static DetailMovieFragment newInstance(TmdbMovie tmdbMovie) {
-        DetailMovieFragment fragment = new DetailMovieFragment();
-        Bundle args = new Bundle();
+    @Bind(R.id.trailerList)
+    ListViewCompat trailerList;
 
-        args.putParcelable(ARG_MOVIE, Parcels.wrap(tmdbMovie));
+    @Bind(R.id.reviewsList)
+    ListViewCompat reviewsList;
 
-        fragment.setArguments(args);
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        menu.add(Menu.NONE, R.id.action_share_first_trailer, Menu.NONE, R.string.action_share_trailer);
+    }
 
-        return fragment;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_share_first_trailer:
+                if (trailerList.getAdapter().isEmpty()) {
+                    Snackbar.make(getView(), "Still fetching trailers please wait", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    TmdbVideo firstTrailer = (TmdbVideo) trailerList.getAdapter().getItem(0);
+                    IntentUtil.shareYoutubeVideo(getContext(), firstTrailer.getKey(), mMovie.getOriginal_title());
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public static DetailMovieFragment newInstance(TmdbMovie tmdbMovie, boolean isFavorite) {
@@ -82,7 +108,6 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
         return fragment;
     }
 
-
     public DetailMovieFragment() {
         // Required empty public constructor
     }
@@ -90,8 +115,11 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
             mMovie = Parcels.unwrap(getArguments().getParcelable(ARG_MOVIE));
+
         }
     }
 
@@ -120,6 +148,30 @@ public class DetailMovieFragment extends android.support.v4.app.Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 EventBus.getDefault().post(new FavoriteEvent(mMovie.getId(), !isChecked));
+            }
+        });
+
+        TmdbRestClient.getInstance().getService().listMovieReviews(mMovie.getId(), new Callback<TmdbVideoReviewsResponse>() {
+            @Override
+            public void success(TmdbVideoReviewsResponse tmdbVideoReviewsResponse, Response response) {
+                reviewsList.setAdapter(new ReviewsListAdapter(getContext(), tmdbVideoReviewsResponse));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Snackbar.make(getView(), "Cannot fetch reviews", Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        TmdbRestClient.getInstance().getService().listYoutubeTrailers(mMovie.getId(), new Callback<TmdbVideosResponse>() {
+            @Override
+            public void success(TmdbVideosResponse tmdbVideosResponse, Response response) {
+                trailerList.setAdapter(new TrailerListAdapter(getContext(), tmdbVideosResponse));
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Snackbar.make(getView(), "Cannot fetch trailers", Snackbar.LENGTH_SHORT).show();
             }
         });
 

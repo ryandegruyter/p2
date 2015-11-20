@@ -61,7 +61,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/vote_average" />
+
+            <TextView
+                android:id="@+id/titleTrailers"
+                android:layout_below="@id/synopsis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_trailers" />
+
+            <android.support.v7.internal.widget.ListViewCompat
+                android:id="@+id/trailerList"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/trailers_list_height"
+                android:layout_below="@id/titleTrailers"></android.support.v7.internal.widget.ListViewCompat>
+
+            <TextView
+                android:layout_below="@id/trailerList"
+                android:id="@+id/titleReviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/title_reviews" />
+
+            <android.support.v7.internal.widget.ListViewCompat
+                android:id="@+id/reviewsList"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/trailers_list_height"
+                android:layout_below="@id/titleReviews"></android.support.v7.internal.widget.ListViewCompat>
         </RelativeLayout>
     </ScrollView>
-
 </LinearLayout>
