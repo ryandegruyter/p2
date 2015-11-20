@@ -4,21 +4,19 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.internal.widget.ListViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.parceler.Parcels;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbVideosResponse;
-import be.ryan.popularmovies.ui.adapter.TrailerAdapter;
+import be.ryan.popularmovies.ui.adapter.TrailerListAdapter;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by ryan on 10/09/15.
@@ -26,7 +24,9 @@ import be.ryan.popularmovies.ui.adapter.TrailerAdapter;
 public class TrailerDialog extends AppCompatDialogFragment {
 
     private static final String LIST_VIDEOS = "list_videos";
-    private RecyclerView mRecyclerView = null;
+
+    @Bind(R.id.list_trailers_dialog)
+    ListViewCompat listViewCompat;
 
     public static TrailerDialog newInstance(TmdbVideosResponse tmdbVideosResponse) {
         Bundle args = new Bundle();
@@ -43,10 +43,9 @@ public class TrailerDialog extends AppCompatDialogFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         View view = layoutInflater.inflate(R.layout.dialog_trailers, null);
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_trailers_dialog);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        TrailerAdapter adapter = new TrailerAdapter(getActivity(), getTrailers());
-        mRecyclerView.setAdapter(adapter);
+        ButterKnife.bind(this, view);
+
+        listViewCompat.setAdapter(new TrailerListAdapter(getContext(),getTrailers()));
 
         builder.setView(view)
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -54,7 +53,8 @@ public class TrailerDialog extends AppCompatDialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         getDialog().cancel();
                     }
-                });
+                })
+        .setTitle(R.string.title_trailers);
 
         return builder.create();
     }

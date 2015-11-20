@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.RecyclerView  xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/recyclerview_reviews_dialog"
-    android:layout_width="match_parent" android:layout_height="match_parent"/>
+<android.support.v7.internal.widget.ListViewCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/list_reviews_dialog"
+    android:layout_width="@dimen/dialog_width"
+    android:layout_height="wrap_content" />

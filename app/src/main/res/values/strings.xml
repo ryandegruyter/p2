@@ -23,4 +23,7 @@
     <string name="action_refresh">Refresh</string>
     <string name="loading">Loading movies</string>
     <string name="cancel">Cancel</string>
+    <string name="title_trailers">Trailers</string>
+    <string name="video_key">VideoKey</string>
+    <string name="title_reviews">Reviews</string>
 </resources>

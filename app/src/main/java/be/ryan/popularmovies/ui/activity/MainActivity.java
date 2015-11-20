@@ -13,12 +13,11 @@ import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.db.FavoriteColumns;
 import be.ryan.popularmovies.domain.TmdbVideoReviewsResponse;
 import be.ryan.popularmovies.domain.TmdbVideosResponse;
-import be.ryan.popularmovies.event.BackPressedEvent;
 import be.ryan.popularmovies.event.FavoriteEvent;
 import be.ryan.popularmovies.event.FetchReviewsEvent;
 import be.ryan.popularmovies.event.FetchTrailerEvent;
-import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.event.MovieSelectedEvent;
+import be.ryan.popularmovies.event.PageSelectedEvent;
 import be.ryan.popularmovies.provider.PopularMoviesContract;
 import be.ryan.popularmovies.tmdb.TmdbRestClient;
 import be.ryan.popularmovies.ui.dialog.ReviewsDialog;
@@ -60,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
         setSupportActionBar(toolbar);
 
         Fragment movieListFragment = new MovieListPagerFragment();

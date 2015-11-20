@@ -2,14 +2,10 @@ package be.ryan.popularmovies;
 
 import android.app.Application;
 import android.content.Context;
-import android.os.SystemClock;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.facebook.stetho.Stetho;
 
 import be.ryan.popularmovies.db.PopMovSqlHelper;
-import be.ryan.popularmovies.ui.activity.ToolbarDelegate;
 import be.ryan.popularmovies.util.PrefUtil;
 import timber.log.Timber;
 
@@ -17,7 +13,7 @@ import timber.log.Timber;
  * Created by ryan on 23/09/15.
  */
 public class App extends Application{
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     private static final String TAG = "App";
 

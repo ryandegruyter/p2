@@ -1,20 +1,21 @@
 package be.ryan.popularmovies.ui.dialog;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.support.v7.internal.widget.ListViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import org.parceler.Parcels;
 
 import be.ryan.popularmovies.R;
 import be.ryan.popularmovies.domain.TmdbVideoReviewsResponse;
-import be.ryan.popularmovies.ui.adapter.ReviewsAdapter;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by ryan on 14/09/15.
@@ -23,8 +24,10 @@ public class ReviewsDialog extends AppCompatDialogFragment {
 
     private static final String REVIEWS = "reviews";
 
-    public static ReviewsDialog newInstance(TmdbVideoReviewsResponse reviewsResponse) {
+    @Bind(R.id.list_reviews_dialog)
+    ListViewCompat listViewCompat;
 
+    public static ReviewsDialog newInstance(TmdbVideoReviewsResponse reviewsResponse) {
         Bundle args = new Bundle();
         Parcelable parcelable = Parcels.wrap(reviewsResponse);
         args.putParcelable(REVIEWS, parcelable);
@@ -33,23 +36,28 @@ public class ReviewsDialog extends AppCompatDialogFragment {
         return fragment;
     }
 
-    RecyclerView recyclerView;
-    @Nullable
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+
+        View view = layoutInflater.inflate(R.layout.dialog_reviews, null);
+        ButterKnife.bind(this, view);
+
         TmdbVideoReviewsResponse reviewsResponse = Parcels.unwrap(getArguments().getParcelable(REVIEWS));
-        View view = null;
-        if (reviewsResponse.getReviews() == null) {
-            //TODO load empty view
-        }else{
-            view = inflater.inflate(R.layout.dialog_reviews, container, false);
 
-            recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_reviews_dialog);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
-            recyclerView.setAdapter(new ReviewsAdapter(reviewsResponse, getActivity()));
-        }
-        return view;
+        listViewCompat.setAdapter(new ReviewsListAdapter(getContext(), reviewsResponse));
+
+        builder.setView(view)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        getDialog().cancel();
+                    }
+                })
+                .setTitle(R.string.title_reviews);
+
+        return builder.create();
     }
-
 }
